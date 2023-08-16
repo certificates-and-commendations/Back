@@ -18,7 +18,6 @@ class CustomUserAdmin(admin.ModelAdmin):
     search_fields = ('email', 'username', 'first_name',
                      'last_name', )
     ordering = ('email',)
-
     readonly_fields = ["avatar"]
 
     def avatar(self, obj):
