@@ -46,9 +46,8 @@ def test_post_user(client):
     
 def test_user_profile(client, user):
     response = client.get(f'{URL_USERS}{user.id}/')
-    assert response.status_code ==200, (p
+    assert response.status_code ==200, (
         'Не удалось получить профиль пользователя')
-    fields = ('id', 'email', 'username',)
     for field in USER_FIELDS:
         assert getattr(user, field)==response.json().get(field), (
             f'В ответе на GET {URL_USERS}{user.id}/ нет поля {field}')
