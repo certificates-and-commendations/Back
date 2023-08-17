@@ -46,7 +46,7 @@ def test_post_user(client):
     
 def test_user_profile(client, user):
     response = client.get(f'{URL_USERS}{user.id}/')
-    assert response.status_code ==200, (
+    assert response.status_code ==200, (p
         'Не удалось получить профиль пользователя')
     fields = ('id', 'email', 'username',)
     for field in USER_FIELDS:
@@ -65,12 +65,12 @@ def test_user_me(client, user_token):
 
 def test_change_password(client, user_token):
     good_params={
-        'new_password': 'Test_user12',
-        'current_password': 'Test_user1',
+        'new_password': 'Test_user1#',
+        'current_password': '12345678',
     }
     bad_params={
-        'new_pass': 'Test_user12',
-        'current_password': 'Test_user1',
+        'new_pass': 'Test_user1#',
+        'current_password': '12345678',
     }
     response = client.post(f'{URL_USERS}set_password/')
     assert response.status_code == 401, (
