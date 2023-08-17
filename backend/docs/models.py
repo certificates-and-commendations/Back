@@ -1,10 +1,17 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
-#from django_resized import ResizedImageField
 from users.models import User
 
 
 class Document(models.Model):
+    CATEGORY_CHOICES = (
+        ('diplomas', 'Дипломы'),
+        ('certificates', 'Сертификаты'),
+        ('appreciations', 'Благодарности'),
+        ('awards', 'Грамоты'),
+        ('others', 'Другое'),
+    )
+
     title = models.CharField(
         max_length=255,
         db_index=True,
@@ -12,8 +19,19 @@ class Document(models.Model):
         validators=[MinLengthValidator(6)],
     )
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    preview = ResizedImageField(verbose_name='Превью')
-    background_image = models.CharField(verbose_name='Фон')
+    category = models.CharField(
+        max_length=15,
+        choices=CATEGORY_CHOICES,
+        verbose_name='Категория',
+    )
+    preview = models.CharField(
+        max_length=255,
+        verbose_name='Превью',
+    )
+    background_image = models.CharField(
+        max_length=255,
+        verbose_name='Фон',
+    )
 
     class Meta:
         ordering = ('title',)
@@ -41,9 +59,9 @@ class Field(models.Model):
 class Stamp(models.Model):
     document_id = models.ForeignKey(Document, on_delete=models.CASCADE)
     size = models.IntegerField(verbose_name='Размер элемента')
-    stamp_image = models.ImageField(
+    stamp_image = models.CharField(
+        max_length=255,
         verbose_name='Изображение элемента',
-        upload_to='stamps/'
     )
     coordinate_y = models.IntegerField(verbose_name='Координата Y')
     coordinate_x = models.IntegerField(verbose_name='Координата X')
