@@ -2,10 +2,12 @@ import pytest
 from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
 
+
 @pytest.fixture
 def client():
-    client=APIClient()
+    client = APIClient()
     return client
+
 
 @pytest.fixture
 def user(django_user_model):
@@ -14,6 +16,7 @@ def user(django_user_model):
         email='john_doe@email.com',
         password='12345678'
     )
+
 
 @pytest.fixture
 def user_token(user):
