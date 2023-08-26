@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
 
-class MyUserManager(BaseUserManager): # переопределяем дефолтный UserManager и убираем оттуда все поля username
+class MyUserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
 
     use_in_migrations = True
@@ -54,7 +54,7 @@ class User(AbstractUser):
         blank=True
     )
 
-    objects = MyUserManager() # This is the new line in the User model.
+    objects = MyUserManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

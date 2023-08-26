@@ -21,7 +21,6 @@ class Base64ImageField(serializers.ImageField):
 class MyUserCreateSerializer(UserCreateSerializer):
     """Сериализатор для обработки запросов на создание пользователя.
     Валидирует создание пользователя с юзернеймом 'me'."""
-    # убрала поле с загрузкой фото-аватарки, будем возвращать дефолтное
 
     class Meta:
         model = User
