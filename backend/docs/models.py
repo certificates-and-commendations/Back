@@ -3,6 +3,7 @@ from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 from users.models import User
 
+
 CATEGORY_CHOICES = (
     ('diplomas', 'Дипломы'),
     ('certificates', 'Сертификаты'),
