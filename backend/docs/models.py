@@ -3,7 +3,6 @@ from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 from users.models import User
 
-
 CATEGORY_CHOICES = (
     ('diplomas', 'Дипломы'),
     ('certificates', 'Сертификаты'),
@@ -120,3 +119,8 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Favourite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    certificate = models.ForeignKey(Document, on_delete=models.CASCADE)
