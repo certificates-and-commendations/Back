@@ -8,7 +8,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('docs', '0001_initial'),
+        ('documents', '0001_initial'),
     ]
 
     operations = [
@@ -62,6 +62,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='document',
             name='category_id',
-            field=models.ForeignKey(blank=True, max_length=15, null=True, on_delete=django.db.models.deletion.CASCADE, to='docs.category'),
+            field=models.ForeignKey(blank=True, max_length=15, null=True, on_delete=django.db.models.deletion.CASCADE, to='documents.category'),
         ),
     ]

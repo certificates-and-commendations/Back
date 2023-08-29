@@ -37,7 +37,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
-    'docs.apps.DocsConfig',
+    'documents.apps.DocsConfig',
 ]
 
 MIDDLEWARE = [

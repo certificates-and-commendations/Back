@@ -50,12 +50,15 @@ class Document(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
-    textFields = models.ManyToManyField('TextField')
+    text_fields = models.ManyToManyField(
+        'TextField',
+        verbose_name='Текстовое поле',
+    )
     images = models.ManyToManyField(
         'Image',
         max_length=255,
         blank=True,
-        verbose_name='Фон',
+        verbose_name='Элемент',
     )
 
     class Meta:
@@ -203,3 +206,8 @@ class Image(models.Model):
 
     def __str__(self):
         return self.pk
+
+
+class Favourite(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
