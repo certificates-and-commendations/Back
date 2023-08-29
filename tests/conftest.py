@@ -2,7 +2,7 @@ import pytest
 from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
 
-from docs.models import Category, Document, Field, Stamp
+from documents.models import Category, Document, Image, Font, TextField
 
 
 @pytest.fixture
@@ -13,7 +13,6 @@ def client():
 @pytest.fixture
 def user(django_user_model):
     return django_user_model.objects.create_user(
-        username='John Doe',
         email='john_doe@email.com',
         password='12345678'
     )
@@ -32,35 +31,43 @@ def category():
 
 
 @pytest.fixture
-def document(category, user):
+def document(category, image, user, text_field):
     return Document.objects.create(
         title='Test Document',
-        user_id=user,
-        category_id=category,
-        preview='Test Preview',
-        background_image='Test Background Image'
+        user=user,
+        category=category,
+        thumbnail='Test Preview',
+        text_fields=text_field,
+        images=image,
     )
 
 
 @pytest.fixture
-def field(document):
-    return Field.objects.create(
-        document_id=document,
+def text_field(font):
+    return TextField.objects.create(
         text='Test Text',
         coordinate_y=100,
         coordinate_x=200,
-        font='Arial',
-        font_size=12,
-        font_color='black'
+        fonts=font,
+        font_color='#000000',
+        text_decoration='underline'
     )
 
 
 @pytest.fixture
-def stamp(document):
-    return Stamp.objects.create(
-        document_id=document,
-        size=50,
-        stamp_image='Test Stamp Image',
+def font():
+    return Font.objects.create(
+        font_family='Cosmic',
+        font_style='Normal',
+        font_weight='Bold',
+        url='/',
+    )
+
+
+@pytest.fixture
+def image():
+    return Image.objects.create(
         coordinate_y=150,
-        coordinate_x=250
+        coordinate_x=250,
+        url='/'
     )
