@@ -5,11 +5,10 @@ pytestmark = pytest.mark.django_db
 
 URL_USERS = '/api/users/'
 URL_TOKEN = '/api/auth/token/'
-USER_FIELDS = ('email', 'username', 'first_name', 'last_name',
-               'avatar_image', 'id')
+USER_FIELDS = ('email', 'id')
 
 
-def test_get_and_users(client):
+def test_get_users(client):
     response = client.get(URL_USERS)
     assert response.status_code == 200, (
         'Не удалось получить список пользователей')
@@ -17,10 +16,7 @@ def test_get_and_users(client):
 
 def test_post_user(client):
     new_user = {
-        'username': 'UsernameJohn',
         'email': 'newuser@email.com',
-        'first_name': 'john',
-        'last_name': 'doe',
         'password': 'Test123$',
     }
     response = client.post(URL_USERS, new_user, format='json')
@@ -48,13 +44,19 @@ def test_post_user(client):
         'Нельзя зарегистрироваться на одну почту дважды')
 
 
-def test_user_profile(client, user):
+def test_user_profile(client, user, user_token):
     response = client.get(f'{URL_USERS}{user.id}/')
-    assert response.status_code == 200, (
-        'Не удалось получить профиль пользователя')
+    assert response.status_code == 401, (
+        'Нелязя получить доступ к профилю без авторизации')
+    client.credentials(HTTP_AUTHORIZATION=f'Token {user_token.key}')
+    response_with_creds = client.get(f'{URL_USERS}{user.id}/')
+    assert response_with_creds.status_code==200, (
+        'Авторизованный пользователь не может получить доступ к своему профилю'
+    )
     for field in USER_FIELDS:
-        assert getattr(user, field) == response.json().get(field), (
+        assert getattr(user, field) == response_with_creds.json().get(field), (
             f'В ответе на GET {URL_USERS}{user.id}/ нет поля {field}')
+
 
 
 def test_user_me(client, user_token):
