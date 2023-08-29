@@ -2,17 +2,18 @@ from django.core.validators import MinLengthValidator, MinValueValidator
 from django.db import models
 from users.models import User
 
-
 CATEGORY_CHOICES = (
     ('diplomas', 'Дипломы'),
     ('certificates', 'Сертификаты'),
     ('appreciations', 'Благодарности'),
     ('awards', 'Грамоты'),
-    ('others', 'Другое'),
 )
 
 
 class Document(models.Model):
+    """
+    Модель представляющая Документ.
+    """
     title = models.CharField(
         max_length=255,
         db_index=True,
@@ -22,19 +23,36 @@ class Document(models.Model):
         ],
         help_text='Введите название документа',
     )
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    category_id = models.ForeignKey(
+    thumbnail = models.CharField(
+        max_length=255,
+        verbose_name='Превью',
+    )
+    time_create = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата создания'
+    )
+    time_update = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Дата изменения'
+    )
+    is_completed = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(
         'Category',
         max_length=15,
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
     )
-    preview = models.CharField(
-        max_length=255,
-        verbose_name='Превью',
+    color = models.ForeignKey(
+        'TemplateColor',
+        on_delete=models.SET_NULL,
+        null=True
     )
-    background_image = models.CharField(
+    textFields = models.ManyToManyField('TextField')
+    images = models.ManyToManyField(
+        'Image',
         max_length=255,
         blank=True,
         verbose_name='Фон',
@@ -49,12 +67,15 @@ class Document(models.Model):
         return self.title
 
 
-class Field(models.Model):
-    document_id = models.ForeignKey(Document, on_delete=models.CASCADE)
+class TextField(models.Model):
+    """
+    Модель представляет поля документа.
+    """
     text = models.CharField(max_length=255, verbose_name='Текст поля')
     coordinate_y = models.IntegerField(verbose_name='Координата Y')
     coordinate_x = models.IntegerField(verbose_name='Координата X')
-    font = models.CharField(
+    fonts = models.ManyToManyField(
+        'Font',
         max_length=50,
         verbose_name='Название шрифта',
         help_text='Введите название шрифта'
@@ -67,36 +88,28 @@ class Field(models.Model):
         verbose_name='Размер шрифта',
         help_text='Введите размер шрифта'
     )
-    font_color = models.CharField(max_length=100, verbose_name='Цвет шрифта')
+    font_color = models.CharField(
+        max_length=7,
+        verbose_name='Цвет шрифта'
+    )
+    text_decoration = models.CharField(
+        max_length=20,
+        verbose_name='Подчёркивание шрифта'
+    )
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Поле'
         verbose_name_plural = 'Поля'
 
     def __str__(self):
-        return self.document_id
-
-
-class Stamp(models.Model):
-    document_id = models.ForeignKey(Document, on_delete=models.CASCADE)
-    size = models.PositiveSmallIntegerField(verbose_name='Размер элемента')
-    stamp_image = models.CharField(
-        max_length=255,
-        verbose_name='Изображение элемента',
-    )
-    coordinate_y = models.IntegerField(verbose_name='Координата Y')
-    coordinate_x = models.IntegerField(verbose_name='Координата X')
-
-    class Meta:
-        ordering = ('document_id',)
-        verbose_name = 'Штамп'
-        verbose_name_plural = 'Штампы'
-
-    def __str__(self):
-        return self.document_id
+        return self.pk
 
 
 class Category(models.Model):
+    """
+    Модель представляет категории.
+    """
     name = models.CharField(
         max_length=55,
         db_index=True,
@@ -119,3 +132,74 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class TemplateColor(models.Model):
+    """
+    Модель представляет цвета фона шаблона.
+    """
+    hex = models.CharField(
+        max_length=7,
+        verbose_name='Цвет фона',
+        help_text='Введите цвет фона'
+    )
+    slug = models.SlugField(
+        max_length=55,
+        blank=True,
+        unique=True,
+        verbose_name='Уникальный префикс',
+        help_text='Введите уникальный префикс'
+    )
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Цвет фона'
+        verbose_name_plural = 'Цвета фона'
+
+    def __str__(self):
+        return self.pk
+
+
+class Font(models.Model):
+    """
+    Модель представляет шрифт полей документа.
+    """
+    font_family = models.CharField(
+        max_length=55,
+        verbose_name='Название шрифта'
+    )
+    font_style = models.CharField(
+        max_length=55,
+        verbose_name='Начертание шрифта'
+    )
+    font_weight = models.CharField(
+        max_length=55,
+        verbose_name='Насыщенность шрифта'
+    )
+    url = models.CharField(max_length=55)
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Шрифт'
+        verbose_name_plural = 'Шрифты'
+        unique_together = ('font_style', 'font_weight')
+
+    def __str__(self):
+        return self.pk
+
+
+class Image(models.Model):
+    """
+    Модель для изображения штампа, фона, подписи.
+    """
+    coordinate_y = models.IntegerField(verbose_name='Координата Y')
+    coordinate_x = models.IntegerField(verbose_name='Координата X')
+    url = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ('-id',)
+        verbose_name = 'Элемент'
+        verbose_name_plural = 'Элементы'
+
+    def __str__(self):
+        return self.pk
