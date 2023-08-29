@@ -13,7 +13,6 @@ def client():
 @pytest.fixture
 def user(django_user_model):
     return django_user_model.objects.create_user(
-        username='John Doe',
         email='john_doe@email.com',
         password='12345678'
     )
@@ -21,7 +20,6 @@ def user(django_user_model):
 @pytest.fixture
 def user_token(user):
     return Token.objects.create(user=user)
-
 
 @pytest.fixture
 def category():

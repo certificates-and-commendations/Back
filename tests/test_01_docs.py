@@ -11,7 +11,7 @@ class TestDocsModels:
     def test_document_category_relation(self):
         Document.objects.create(
             title='Document 1',
-            user_id=User.objects.create(username='test_1', email='test@test1.ru'),
+            user_id=User.objects.create(email='test@test1.ru'),
             category_id=Category.objects.create(
                 id=0,
                 name='diplomas',
@@ -20,7 +20,7 @@ class TestDocsModels:
         )
         Document.objects.create(
             title='Document 2',
-            user_id=User.objects.create(username='test_2', email='test@test2.ru'),
+            user_id=User.objects.create(email='test@test2.ru'),
             category_id=Category.objects.create(
                 id=1,
                 name='certificates',
@@ -45,7 +45,7 @@ class TestDocsModels:
     def test_document_title_min_length(self, category):
         doc = Document(
             title='Short',
-            user_id=User.objects.create(username='testuser', email='length@test.com'),
+            user_id=User.objects.create(email='length@test.com'),
             category_id=category,
             preview='Test Preview',
             background_image='Test Background Image'
