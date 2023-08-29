@@ -21,7 +21,6 @@ def user(django_user_model):
 def user_token(user):
     return Token.objects.create(user=user)
 
-
 @pytest.fixture
 def category():
     return Category.objects.create(
