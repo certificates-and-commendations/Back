@@ -1,4 +1,4 @@
-from django.core.validators import MinLengthValidator, MinValueValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from users.models import User
 
@@ -7,6 +7,12 @@ CATEGORY_CHOICES = (
     ('certificates', 'Сертификаты'),
     ('appreciations', 'Благодарности'),
     ('awards', 'Грамоты'),
+)
+
+FONT_DECORATIONS = (
+    ('underline', 'подчеркнутый'),
+    ('strikethrough', 'зачеркнутый'),
+    (False, 'обычный')
 )
 
 
@@ -18,13 +24,11 @@ class Document(models.Model):
         max_length=255,
         db_index=True,
         verbose_name='Название документа',
-        validators=[
-            MinLengthValidator(6, message='Введите слово больше 6 символов')
-        ],
         help_text='Введите название документа',
     )
-    thumbnail = models.CharField(
-        max_length=255,
+    thumbnail = models.ImageField(
+        upload_to='thumbnails/',
+        blank=True,
         verbose_name='Превью',
     )
     time_create = models.DateTimeField(
@@ -35,8 +39,6 @@ class Document(models.Model):
         auto_now=True,
         verbose_name='Дата изменения'
     )
-    is_completed = models.BooleanField(default=False)
-    is_public = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(
         'Category',
@@ -50,15 +52,10 @@ class Document(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
-    text_fields = models.ManyToManyField(
-        'TextField',
-        verbose_name='Текстовое поле',
-    )
-    images = models.ManyToManyField(
-        'Image',
-        max_length=255,
-        blank=True,
-        verbose_name='Элемент',
+    background = models.ImageField(
+        'BackgroundImage',
+        upload_to='backgrounds/',
+        blank=True
     )
 
     class Meta:
@@ -74,11 +71,11 @@ class TextField(models.Model):
     """
     Модель представляет поля документа.
     """
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
     text = models.CharField(max_length=255, verbose_name='Текст поля')
     coordinate_y = models.IntegerField(verbose_name='Координата Y')
     coordinate_x = models.IntegerField(verbose_name='Координата X')
-    fonts = models.ManyToManyField(
-        'Font',
+    font = models.CharField(
         max_length=50,
         verbose_name='Название шрифта',
         help_text='Введите название шрифта'
@@ -95,13 +92,16 @@ class TextField(models.Model):
         max_length=7,
         verbose_name='Цвет шрифта'
     )
+    is_bold = models.BooleanField(default=False)
+    is_italic = models.BooleanField(default=False)
     text_decoration = models.CharField(
         max_length=20,
+        choices=FONT_DECORATIONS,
+        default=False,
         verbose_name='Подчёркивание шрифта'
     )
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Поле'
         verbose_name_plural = 'Поля'
 
@@ -155,7 +155,6 @@ class TemplateColor(models.Model):
     )
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Цвет фона'
         verbose_name_plural = 'Цвета фона'
 
@@ -163,44 +162,19 @@ class TemplateColor(models.Model):
         return self.pk
 
 
-class Font(models.Model):
+class Element(models.Model):
     """
-    Модель представляет шрифт полей документа.
+    Модель для изображения штампа, подписи, т.д.
     """
-    font_family = models.CharField(
-        max_length=55,
-        verbose_name='Название шрифта'
-    )
-    font_style = models.CharField(
-        max_length=55,
-        verbose_name='Начертание шрифта'
-    )
-    font_weight = models.CharField(
-        max_length=55,
-        verbose_name='Насыщенность шрифта'
-    )
-    url = models.CharField(max_length=55)
-
-    class Meta:
-        ordering = ('-id',)
-        verbose_name = 'Шрифт'
-        verbose_name_plural = 'Шрифты'
-        unique_together = ('font_style', 'font_weight')
-
-    def __str__(self):
-        return self.pk
-
-
-class Image(models.Model):
-    """
-    Модель для изображения штампа, фона, подписи.
-    """
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
     coordinate_y = models.IntegerField(verbose_name='Координата Y')
     coordinate_x = models.IntegerField(verbose_name='Координата X')
-    url = models.CharField(max_length=255)
+    image = models.ImageField(
+        upload_to='elements/',
+        blank=True,
+    )
 
     class Meta:
-        ordering = ('-id',)
         verbose_name = 'Элемент'
         verbose_name_plural = 'Элементы'
 
