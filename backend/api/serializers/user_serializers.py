@@ -30,6 +30,7 @@ class MyUserCreateSerializer(UserCreateSerializer):
             'last_name',
             'avatar_image',
             'password',
+            'code'
         )
 
 
@@ -45,5 +46,12 @@ class MyUserSerializer(UserSerializer):
             'email',
             'first_name',
             'last_name',
+            'code',
             'avatar_image',
         )
+
+
+class ConfirmEmailSerializer(serializers.Serializer):
+    """Сериализатор для подтверждения почты по коду"""
+    email = serializers.CharField(required=True)
+    code = serializers.IntegerField(required=True)
