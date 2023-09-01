@@ -1,7 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
 from users.models import User
-from documents.models import Category, Document, Image, TextField
+from documents.models import Category, Document, Element, TextField
 
 
 pytestmark = pytest.mark.django_db

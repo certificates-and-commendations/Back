@@ -1,4 +1,4 @@
-from docs.models import Favourite
+from documents.models import Favourite
 from rest_framework import serializers
 
 

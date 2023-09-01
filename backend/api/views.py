@@ -2,6 +2,7 @@ from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import FavouriteSerializer
 from api.serializers.user_serializers import ConfirmEmailSerializer
 from api.serializers.user_serializers import MyUserCreateSerializer
+from documents.models import Favourite
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as DjoserUserViewSet
 from docs.models import Favourite
