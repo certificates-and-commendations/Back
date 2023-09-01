@@ -1,3 +1,5 @@
+import random
+
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
@@ -36,8 +38,11 @@ class MyUserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-class User(AbstractUser):
+def activation_code():
+    return random.randint(111111, 999999)
 
+
+class User(AbstractUser):
     username = None
     email = models.EmailField(
         'Почта',
@@ -47,6 +52,7 @@ class User(AbstractUser):
     )
     first_name = models.CharField('Имя', max_length=150, blank=True)
     last_name = models.CharField('Фамилия', max_length=150, blank=True)
+    code = models.PositiveIntegerField('Код', default=activation_code)
     avatar_image = models.ImageField(
         verbose_name='Фото',
         upload_to='users/',
@@ -64,5 +70,4 @@ class User(AbstractUser):
         verbose_name_plural = "Пользователи"
 
     def __str__(self):
-        return (f'{self.username}: {self.first_name}'
-                f'{self.last_name}, {self.email}')
+        return (f'{self.email}: {self.first_name} {self.last_name}')
