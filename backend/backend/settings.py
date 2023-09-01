@@ -19,7 +19,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', default=True)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '185.93.111.238']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '185.93.111.238', 'certificates.acceleratorpracticum.ru']
 
 
 # Application definition
@@ -37,7 +37,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
-    'docs.apps.DocsConfig',
+    'documents.apps.DocsConfig',
 ]
 
 MIDDLEWARE = [
