@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 ('stamp_image', models.CharField(max_length=255, verbose_name='Изображение элемента')),
                 ('coordinate_y', models.IntegerField(verbose_name='Координата Y')),
                 ('coordinate_x', models.IntegerField(verbose_name='Координата X')),
-                ('document_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='docs.document')),
+                ('document_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='documents.document')),
             ],
             options={
                 'verbose_name': 'Штамп',
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('font', models.CharField(max_length=100, verbose_name='Название шрифта')),
                 ('font_size', models.IntegerField(verbose_name='Размер шрифта')),
                 ('font_color', models.CharField(max_length=100, verbose_name='Цвет шрифта')),
-                ('document_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='docs.document')),
+                ('document_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='documents.document')),
             ],
             options={
                 'verbose_name': 'Поле',
