@@ -1,5 +1,5 @@
 from api.serializers.certificate_serializers import FavouriteSerializer
-from docs.models import Favourite
+from documents.models import Favourite
 from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import mixins
