@@ -2,13 +2,14 @@ import pytest
 from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
 
-from documents.models import Category, Document, Image, Font, TextField
+from documents.models import Category, Document, Element, TextField
 
 
 @pytest.fixture
 def client():
-    client=APIClient()
+    client = APIClient()
     return client
+
 
 @pytest.fixture
 def user(django_user_model):
@@ -17,9 +18,11 @@ def user(django_user_model):
         password='12345678'
     )
 
+
 @pytest.fixture
 def user_token(user):
     return Token.objects.create(user=user)
+
 
 @pytest.fixture
 def category():
@@ -42,30 +45,20 @@ def document(category, image, user, text_field):
 
 
 @pytest.fixture
-def text_field(font):
+def text_field():
     return TextField.objects.create(
         text='Test Text',
         coordinate_y=100,
         coordinate_x=200,
-        fonts=font,
+        font='font',
         font_color='#000000',
         text_decoration='underline'
     )
 
 
 @pytest.fixture
-def font():
-    return Font.objects.create(
-        font_family='Cosmic',
-        font_style='Normal',
-        font_weight='Bold',
-        url='/',
-    )
-
-
-@pytest.fixture
 def image():
-    return Image.objects.create(
+    return Element.objects.create(
         coordinate_y=150,
         coordinate_x=250,
         url='/'
