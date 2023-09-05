@@ -12,7 +12,13 @@ CATEGORY_CHOICES = (
 FONT_DECORATIONS = (
     ('underline', 'подчеркнутый'),
     ('strikethrough', 'зачеркнутый'),
-    (False, 'обычный')
+    ('none', 'обычный')
+)
+
+TEXT_ALIGN = (
+    ('left', ''),
+    ('right', ''),
+    ('center', '')
 )
 
 
@@ -57,6 +63,7 @@ class Document(models.Model):
         upload_to='backgrounds/',
         blank=True
     )
+    is_horizontal = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('title',)
@@ -97,9 +104,13 @@ class TextField(models.Model):
     text_decoration = models.CharField(
         max_length=20,
         choices=FONT_DECORATIONS,
-        default=False,
+        default='none',
         verbose_name='Подчёркивание шрифта'
     )
+    align = models.CharField(
+        max_length=6,
+        choices=TEXT_ALIGN,
+        default='left')
 
     class Meta:
         verbose_name = 'Поле'
