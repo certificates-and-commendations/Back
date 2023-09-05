@@ -2,7 +2,6 @@ from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import FavouriteSerializer
 from api.serializers.user_serializers import ConfirmEmailSerializer
 from api.serializers.user_serializers import MyUserCreateSerializer
-from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet as DjoserUserViewSet
 from documents.models import Favourite
 from rest_framework import mixins
@@ -27,11 +26,11 @@ def regist_user(request):
         )
     if serializer.is_valid():
         serializer.save()
-        user = User.objects.latest('id')
+        email = serializer.data.get('email')
+        user = User.objects.get(email=email)
         user.is_active = False
         # Отправка кода на почту
         code = user.code
-        email = serializer.data.get('email')
         gmail_send_message(code=code, email=email)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
