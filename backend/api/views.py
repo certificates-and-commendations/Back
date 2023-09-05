@@ -21,17 +21,18 @@ def regist_user(request):
     if User.objects.filter(
             email=request.data.get('email')
     ).exists():
-        return Response(request.data, status=status.HTTP_200_OK)
+        return Response(
+            {'Ошибка': 'Пользователь с таким email уже существует'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     if serializer.is_valid():
         serializer.save()
-        # user = get_object_or_404(
-        #     User, email=serializer.validated_data['email']
-        # )
-        # user.is_active = False
+        user = User.objects.latest('id')
+        user.is_active = False
         # Отправка кода на почту
-        code = serializer.data.get('code')
-        # email = serializer.data.get('email')
-        gmail_send_message(code=code)
+        code = user.code
+        email = serializer.data.get('email')
+        gmail_send_message(code=code, email=email)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

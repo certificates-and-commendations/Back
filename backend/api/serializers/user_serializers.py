@@ -30,7 +30,6 @@ class MyUserCreateSerializer(UserCreateSerializer):
             'last_name',
             'avatar_image',
             'password',
-            'code'
         )
 
 
