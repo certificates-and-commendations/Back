@@ -2,10 +2,9 @@ from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import FavouriteSerializer
 from api.serializers.user_serializers import ConfirmEmailSerializer
 from api.serializers.user_serializers import MyUserCreateSerializer
-from documents.models import Favourite
-from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet as DjoserUserViewSet
-from docs.models import Favourite
+from documents.models import Favourite
 from rest_framework import mixins
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -13,8 +12,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from users.models import User
-
-User = get_user_model()
 
 
 @api_view(['POST'])
@@ -27,8 +24,13 @@ def regist_user(request):
         return Response(request.data, status=status.HTTP_200_OK)
     if serializer.is_valid():
         serializer.save()
+        # user = get_object_or_404(
+        #     User, email=serializer.validated_data['email']
+        # )
+        # user.is_active = False
         # Отправка кода на почту
         code = serializer.data.get('code')
+        # email = serializer.data.get('email')
         gmail_send_message(code=code)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -45,6 +47,7 @@ def confirm_code(request):
         if str(user.code) == str(code):
             # Создание токена
             token = Token.objects.create(user=user)
+            user.is_active = True
             return Response({'Token': str(token)}, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

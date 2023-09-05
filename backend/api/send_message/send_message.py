@@ -26,9 +26,9 @@ def gmail_send_message(code):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            config = json.loads(os.environ['CRED'])
-            flow = InstalledAppFlow.from_client_config(
-                config, SCOPES)
+            CLIENT_SECRET_FILE = r'E:\Dev\certificates-and-commendations\backend\api\send_message\credentials.json'
+            flow = InstalledAppFlow.from_client_secrets_file(
+                CLIENT_SECRET_FILE, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.json', 'w') as token:
@@ -42,7 +42,7 @@ def gmail_send_message(code):
             'Код активации для подтверждения вашего аккаунта: ' + str(code)
         )
 
-        message['To'] = 'vladislav-login94@yandex.ru'
+        message['To'] = 'pochtavladislav94@mail.ru'
         message['From'] = 'gduser2@workspacesamples.dev'
         message['Subject'] = 'Код активации'
 
@@ -64,4 +64,4 @@ def gmail_send_message(code):
 
 
 if __name__ == '__main__':
-    gmail_send_message()
+    gmail_send_message(code='123456')
