@@ -39,7 +39,7 @@ class MyUserManager(BaseUserManager):
 
 
 def activation_code():
-    return random.randint(111111, 999999)
+    return random.randint(1111, 9999)
 
 
 class User(AbstractUser):
