@@ -1,6 +1,8 @@
-from documents.models import Favourite, Document, Element, TextField
+from django.db import transaction
 from rest_framework import serializers
-from api.utils import Base64ImageField
+
+from api.utils import Base64ImageField, create_thumbnail
+from documents.models import Document, Element, Favourite, TextField
 
 
 class FavouriteSerializer(serializers.ModelSerializer):
@@ -57,3 +59,15 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
         model = Document
         fields = ('title', 'background', 'category',
                   'is_horizontal', 'texts', 'elements')
+
+    @transaction.atomic
+    def create(self, validated_data):
+        texts = validated_data.pop('texts')
+        elements = validated_data.pop('elements')
+        document = Document.objects.create(**validated_data)
+        for text in texts:
+            TextField.objects.create(document=document, **text)
+        for element in elements:
+            Element.objects.create(document=document, **element)
+        create_thumbnail(document)
+        return document

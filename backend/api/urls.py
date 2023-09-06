@@ -1,8 +1,8 @@
-from api.views import regist_user, confirm_code
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from api.views import FavouriteViewSet, UserViewSet, DocumentsViewSet
+from api.views import (DocumentsViewSet, FavouriteViewSet, UserViewSet,
+                       confirm_code, regist_user)
 
 app_name = 'api'
 router = DefaultRouter()
