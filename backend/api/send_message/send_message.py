@@ -47,8 +47,7 @@ def gmail_send_message(code):
         message['Subject'] = 'Код активации'
 
         # encoded message
-        encoded_message = base64.urlsafe_b64encode(message.as_bytes()) \
-            .decode()
+        encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 
         create_message = {
             'raw': encoded_message

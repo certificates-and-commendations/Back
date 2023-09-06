@@ -74,7 +74,7 @@ class DocumentsViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return DocumentDetailSerializer
-        elif self.action == 'create':
+        if self.action == 'create':
             return DocumentDetailWriteSerializer
         return DocumentSerializer
 
