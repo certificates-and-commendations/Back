@@ -14,8 +14,6 @@ from api.serializers.user_serializers import (ConfirmEmailSerializer,
                                               MyUserCreateSerializer)
 from documents.models import Document, Favourite
 
-User = get_user_model()
-
 
 @api_view(['POST'])
 def regist_user(request):
@@ -24,15 +22,24 @@ def regist_user(request):
     if User.objects.filter(
             email=request.data.get('email')
     ).exists():
-        return Response(request.data, status=status.HTTP_200_OK)
+        return Response(
+            {'Ошибка': 'Пользователь с таким email уже существует'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
     if serializer.is_valid():
         serializer.save()
+        email = serializer.data.get('email')
+        user = User.objects.get(email=email)
+        user.is_active = False
         # Отправка кода на почту
-        code = serializer.data.get('code')
-        gmail_send_message(code=code)
+        code = user.code
+        gmail_send_message(code=code, email=email)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+        {'Ошибка': 'Проверьте введенный email и/или пароль'},
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
 
 @api_view(['POST'])
@@ -45,9 +52,10 @@ def confirm_code(request):
         if str(user.code) == str(code):
             # Создание токена
             token = Token.objects.create(user=user)
+            user.is_active = True
             return Response({'Token': str(token)}, status=status.HTTP_200_OK)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'Ошибка': 'Проверьте код'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(DjoserUserViewSet):
