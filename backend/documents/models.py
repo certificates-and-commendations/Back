@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+
 from users.models import User
 
 CATEGORY_CHOICES = (
@@ -12,7 +13,13 @@ CATEGORY_CHOICES = (
 FONT_DECORATIONS = (
     ('underline', 'подчеркнутый'),
     ('strikethrough', 'зачеркнутый'),
-    (False, 'обычный')
+    ('none', 'обычный')
+)
+
+TEXT_ALIGN = (
+    ('left', ''),
+    ('right', ''),
+    ('center', '')
 )
 
 
@@ -57,6 +64,7 @@ class Document(models.Model):
         upload_to='backgrounds/',
         blank=True
     )
+    is_horizontal = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('title',)
@@ -97,16 +105,20 @@ class TextField(models.Model):
     text_decoration = models.CharField(
         max_length=20,
         choices=FONT_DECORATIONS,
-        default=False,
+        default='none',
         verbose_name='Подчёркивание шрифта'
     )
+    align = models.CharField(
+        max_length=6,
+        choices=TEXT_ALIGN,
+        default='left')
 
     class Meta:
         verbose_name = 'Поле'
         verbose_name_plural = 'Поля'
 
     def __str__(self):
-        return self.pk
+        return self.text
 
 
 class Category(models.Model):
@@ -159,7 +171,7 @@ class TemplateColor(models.Model):
         verbose_name_plural = 'Цвета фона'
 
     def __str__(self):
-        return self.pk
+        return self.slug  # из-за ошибок админки пеменяла рк на слаг
 
 
 class Element(models.Model):
@@ -178,10 +190,21 @@ class Element(models.Model):
         verbose_name = 'Элемент'
         verbose_name_plural = 'Элементы'
 
-    def __str__(self):
-        return self.pk
+    # def __str__(self):
+    #     return self.pk  пока закомментила, тк ошибки в админке
 
 
 class Favourite(models.Model):
+    """Избранные документы."""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        # добавила проверку на уникальность
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'document'], name='unique_favorite'
+            )
+        ]
