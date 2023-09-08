@@ -40,8 +40,14 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class DocumentDetailSerializer(serializers.ModelSerializer):
-    texts = TextFieldSerializer(many=True, required=False)
-    elements = ElementSerializer(many=True, required=False)
+    texts = TextFieldSerializer(
+        source='textfield_set',
+        many=True,
+        required=False)
+    elements = ElementSerializer(
+        source='element_set',
+        many=True,
+        required=False)
     background = Base64ImageField()
 
     class Meta:
