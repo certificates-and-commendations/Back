@@ -56,7 +56,8 @@ def confirm_code(request):
             user.is_active = True
             return Response({'Token': str(token)}, status=status.HTTP_200_OK)
 
-    return Response({'Ошибка': 'Проверьте код'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'Ошибка': 'Проверьте код'},
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(DjoserUserViewSet):
