@@ -1,11 +1,13 @@
 name: certificates_main
 
 on:
+  push:
   pull_request:
     types:
       - opened
     branches:
       - main
+      - develop
 
 jobs:
   backend_build_and_push_to_docker_hub:
@@ -48,7 +50,7 @@ jobs:
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-          echo DEBUG=${{ secrets.DEBUG }} >> .env
+          echo DEBUG=${{ secrets.DEBUG }} >> .env 
           sudo docker-compose up -d --build
           sudo docker-compose exec -T backend python manage.py migrate
           sudo docker-compose exec -T backend python manage.py collectstatic --no-input
