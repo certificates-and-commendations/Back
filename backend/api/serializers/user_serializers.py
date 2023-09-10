@@ -1,5 +1,7 @@
-from django.forms import ValidationError
 from djoser.serializers import UserCreateSerializer, UserSerializer
+from rest_framework import serializers
+
+from api.utils import Base64ImageField
 from users.models import User
 
 
@@ -10,45 +12,33 @@ class MyUserCreateSerializer(UserCreateSerializer):
     class Meta:
         model = User
         fields = (
+            'id',
             'email',
-            'username',
             'first_name',
             'last_name',
             'avatar_image',
             'password',
         )
 
-    def validate_email(self, value):
-        lower_email = value.lower()
-        if User.objects.filter(email__iexact=lower_email).exists():
-            raise ValidationError(
-                'Пользователь с таким email уже зарегистрирован'
-            )
-        return lower_email
-
-    def validate_username(self, value):
-        lower_username = value.lower()
-        if User.objects.filter(username__iexact=lower_username).exists():
-            raise ValidationError(
-                'Пользователь с таким username уже зарегистрирован'
-            )
-        if value == "me":
-            raise ValidationError(
-                'Невозможно создать пользователя с таким именем!'
-            )
-        return lower_username
-
 
 class MyUserSerializer(UserSerializer):
     """сериализатор для получения юзера"""
+
+    avatar_image = Base64ImageField(required=False, allow_null=True)
 
     class Meta:
         model = User
         fields = (
             'id',
-            'username',
             'email',
             'first_name',
             'last_name',
+            'code',
             'avatar_image',
         )
+
+
+class ConfirmEmailSerializer(serializers.Serializer):
+    """Сериализатор для подтверждения почты по коду"""
+    email = serializers.CharField(required=True)
+    code = serializers.IntegerField(required=True)

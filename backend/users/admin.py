@@ -5,7 +5,6 @@ from .models import User
 
 
 class CustomUserAdmin(admin.ModelAdmin):
-
     list_display = (
         'username',
         'email',
@@ -13,10 +12,11 @@ class CustomUserAdmin(admin.ModelAdmin):
         'last_name',
         'avatar_image',
         'avatar',
+        'code',
     )
     list_filter = ('first_name', 'last_name',)
     search_fields = ('email', 'username', 'first_name',
-                     'last_name', )
+                     'last_name',)
     ordering = ('email',)
     readonly_fields = ["avatar"]
 
