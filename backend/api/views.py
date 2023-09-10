@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model
+# from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
@@ -13,6 +13,7 @@ from api.serializers.certificate_serializers import (
 from api.serializers.user_serializers import (ConfirmEmailSerializer,
                                               MyUserCreateSerializer)
 from documents.models import Document, Favourite
+from users.models import User
 
 
 @api_view(['POST'])
@@ -55,7 +56,8 @@ def confirm_code(request):
             user.is_active = True
             return Response({'Token': str(token)}, status=status.HTTP_200_OK)
 
-    return Response({'Ошибка': 'Проверьте код'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'Ошибка': 'Проверьте код'},
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(DjoserUserViewSet):

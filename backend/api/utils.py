@@ -44,5 +44,7 @@ def create_thumbnail(document):
         im.thumbnail(size)
         thumb_io = BytesIO()
         im.save(thumb_io, 'JPEG', quality=95)
-        document.thumbnail = File(thumb_io, name=document.background.name)
+        document.thumbnail = File(
+            thumb_io,
+            name=os.path.basename(document.background.name))
         document.save()
