@@ -1,7 +1,6 @@
 name: certificates_main
 
 on:
-  push:
   pull_request:
     types:
       - opened
