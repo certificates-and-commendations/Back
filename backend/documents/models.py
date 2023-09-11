@@ -1,6 +1,5 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-
 from users.models import User
 
 CATEGORY_CHOICES = (
@@ -17,9 +16,9 @@ FONT_DECORATIONS = (
 )
 
 TEXT_ALIGN = (
-    ('left', ''),
-    ('right', ''),
-    ('center', '')
+    ('left', 'по левому краю'),
+    ('right', 'по правому краю'),
+    ('center', 'по центру')
 )
 
 
@@ -197,3 +196,10 @@ class Element(models.Model):
 class Favourite(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
+
+
+class Font(models.Model):
+    font = models.CharField(max_length=100)
+    is_bold = models.BooleanField()
+    is_italic = models.BooleanField()
+    font_file = models.FileField(upload_to='fonts/')
