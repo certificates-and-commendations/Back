@@ -42,6 +42,8 @@ jobs:
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
           sudo docker-compose down
+          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/certificates_frontend:latest
+          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/certificates_backend:latest
           rm .env
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
