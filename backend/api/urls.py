@@ -1,14 +1,14 @@
+from api.views import (DocumentsViewSet, FavouriteViewSet, FontViewSet,
+                       UserViewSet, confirm_code, regist_user)
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-
-from api.views import (DocumentsViewSet, FavouriteViewSet, UserViewSet,
-                       confirm_code, regist_user)
 
 app_name = 'api'
 router = DefaultRouter()
 router.register("users/favourite", FavouriteViewSet)
 router.register("users", UserViewSet)
 router.register('documents', DocumentsViewSet)
+router.register('font', FontViewSet)
 
 
 urlpatterns = [

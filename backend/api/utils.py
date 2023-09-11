@@ -2,9 +2,9 @@ import base64
 import os
 from io import BytesIO
 
-from django.conf import settings
 from django.core.files import File
 from django.core.files.base import ContentFile
+from documents.models import Font
 from PIL import Image, ImageDraw, ImageFont
 from rest_framework import serializers
 
@@ -33,8 +33,10 @@ def create_thumbnail(document):
         draw = ImageDraw.Draw(im)
         texts = document.textfield_set.all()
         for text in texts:
+            ff = Font.objects.get(font=text.font, is_bold=text.is_bold,
+                                  is_italic=text.is_italic)
             font = ImageFont.truetype(
-                os.path.join(settings.MEDIA_ROOT, 'fonts', 'arial.ttf'),
+                ff.font_file,
                 text.font_size)
             draw.text(
                 (text.coordinate_x + width, text.coordinate_y + height),
@@ -44,7 +46,7 @@ def create_thumbnail(document):
             if text.text_decoration == 'underline':
                 _, _, right, bottom = font.getbbox(text.text)
                 underline_y = (text.coordinate_y + height
-                               + bottom - font.getmetrics()[1])
+                               + (bottom - font.getmetrics()[1]) * 1.05)
                 draw.line([
                     (text.coordinate_x + width, underline_y),
                     (text.coordinate_x + width + right, underline_y)],

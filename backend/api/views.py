@@ -1,18 +1,17 @@
 # from django.contrib.auth import get_user_model
+from api.send_message.send_message import gmail_send_message
+from api.serializers.certificate_serializers import (
+    DocumentDetailSerializer, DocumentDetailWriteSerializer,
+    DocumentSerializer, FavouriteSerializer, FontSerializer)
+from api.serializers.user_serializers import (ConfirmEmailSerializer,
+                                              MyUserCreateSerializer)
 from djoser.views import UserViewSet as DjoserUserViewSet
+from documents.models import Document, Favourite, Font
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-
-from api.send_message.send_message import gmail_send_message
-from api.serializers.certificate_serializers import (
-    DocumentDetailSerializer, DocumentDetailWriteSerializer,
-    DocumentSerializer, FavouriteSerializer)
-from api.serializers.user_serializers import (ConfirmEmailSerializer,
-                                              MyUserCreateSerializer)
-from documents.models import Document, Favourite
 from users.models import User
 
 
@@ -91,3 +90,8 @@ class DocumentsViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = User.objects.get(id=1)
         serializer.save(user=user)
+
+
+class FontViewSet(viewsets.ModelViewSet):
+    serializer_class = FontSerializer
+    queryset = Font.objects.all()
