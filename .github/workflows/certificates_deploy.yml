@@ -6,6 +6,7 @@ on:
       - opened
     branches:
       - main
+      - develop
 
 jobs:
   backend_build_and_push_to_docker_hub:
@@ -40,6 +41,8 @@ jobs:
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
           sudo docker-compose down
+          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/certificates_frontend:latest
+          sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/certificates_backend:latest
           rm .env
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
@@ -48,7 +51,7 @@ jobs:
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-          echo DEBUG=${{ secrets.DEBUG }} >> .env
+          echo DEBUG=${{ secrets.DEBUG }} >> .env 
           sudo docker-compose up -d --build
           sudo docker-compose exec -T backend python manage.py migrate
           sudo docker-compose exec -T backend python manage.py collectstatic --no-input

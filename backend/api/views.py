@@ -1,4 +1,5 @@
 # from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
@@ -13,6 +14,7 @@ from api.serializers.certificate_serializers import (
 from api.serializers.user_serializers import (ConfirmEmailSerializer,
                                               MyUserCreateSerializer)
 from documents.models import Document, Favourite
+from .filters import DocumentFilter
 from users.models import User
 
 
@@ -73,6 +75,7 @@ class UserViewSet(DjoserUserViewSet):
 
 class FavouriteViewSet(mixins.CreateModelMixin,
                        mixins.DestroyModelMixin,
+                       mixins.ListModelMixin,
                        GenericViewSet):
     queryset = Favourite.objects.all()
     serializer_class = FavouriteSerializer
@@ -80,6 +83,8 @@ class FavouriteViewSet(mixins.CreateModelMixin,
 
 class DocumentsViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = DocumentFilter
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

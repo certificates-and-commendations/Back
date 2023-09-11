@@ -1,6 +1,7 @@
 name: certificates_develop
 
 on:
+  push:
   pull_request:
     types:
       - opened
