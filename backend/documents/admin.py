@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from .models import (Category, Document, Element, Favourite, TemplateColor,
                      TextField)
 
@@ -9,8 +10,27 @@ class FavouriteInline(admin.TabularInline):
     extra = 0
 
 
+class TextFieldInline(admin.TabularInline):
+    model = TextField
+    min_num = 0
+    extra = 0
+
+
+class ElementInline(admin.TabularInline):
+    model = Element
+    readonly_fields = ['mini_image']
+
+    def mini_image(self, obj):
+        if not (obj.pk and obj.image):
+            return 'Элемент не добавлен'
+        return mark_safe(f'<img src="{obj.image.url}"'
+                         f'style="max-height: 40px;">')
+    min_num = 0
+    extra = 0
+
+
 class DocumentAdmin(admin.ModelAdmin):
-    inlines = (FavouriteInline,)
+    inlines = (FavouriteInline, TextFieldInline, ElementInline, )
     list_display = (
         'id',
         'title',
@@ -89,10 +109,11 @@ class ElementAdmin(admin.ModelAdmin):
         'document',
         'coordinate_x',
         'coordinate_y',
+        #'mini_image',
         'image',
     )
     list_filter = ('document', )
-    search_fields = ('image', 'document__id', )
+    search_fields = ('document__id', )
 
 
 admin.site.register(Element, ElementAdmin)
