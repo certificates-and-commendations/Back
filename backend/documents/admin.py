@@ -109,7 +109,6 @@ class ElementAdmin(admin.ModelAdmin):
         'document',
         'coordinate_x',
         'coordinate_y',
-        #'mini_image',
         'image',
     )
     list_filter = ('document', )

@@ -1,8 +1,15 @@
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from users.models import User
 
+
+CATEGORY_CHOICES = (
+    ('diplomas', 'Дипломы'),
+    ('certificates', 'Сертификаты'),
+    ('appreciations', 'Благодарности'),
+    ('awards', 'Грамоты'),
+)
 
 FONT_DECORATIONS = (
     ('underline', 'подчеркнутый'),
@@ -120,15 +127,11 @@ class Category(models.Model):
     """
     Модель представляет категории.
     """
-    name_validator = RegexValidator(
-        regex=r'^[А-Яа-я]+[^\W\d_]*[А-Яа-я]*$',
-        message='Название тега должно содержать только буквы кириллицы',
-        code='invalid_name'
-    )
+
     name = models.CharField(
         max_length=55,
         db_index=True,
-        validators=[name_validator],
+        choices=CATEGORY_CHOICES,
         verbose_name='Категория',
         help_text='Введите категорию документа'
     )
