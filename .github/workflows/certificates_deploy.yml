@@ -1,6 +1,9 @@
 name: certificates_main
 
 on:
+  push:
+    branches:
+      - fix/deploy
   pull_request:
     types:
       - opened
