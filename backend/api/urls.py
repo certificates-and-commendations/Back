@@ -1,14 +1,13 @@
+from api.views import (DocumentsViewSet, FavouriteViewSet, FontViewSet,
+                       UserViewSet, confirm_code, regist_user)
 from django.urls import include, path
-from djoser.views import UserViewSet
 from rest_framework.routers import DefaultRouter
-
-from api.views import (DocumentsViewSet, FavouriteViewSet, confirm_code,
-                       regist_user)
 
 app_name = 'api'
 router = DefaultRouter()
 router.register("users/favourite", FavouriteViewSet)
 router.register('documents', DocumentsViewSet)
+router.register('font', FontViewSet)
 
 user_router = DefaultRouter()
 user_router.register("users", UserViewSet, basename="users")

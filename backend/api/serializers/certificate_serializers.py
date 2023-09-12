@@ -1,8 +1,7 @@
-from django.db import transaction
-from rest_framework import serializers
-
 from api.utils import Base64ImageField, create_thumbnail
-from documents.models import Document, Element, Favourite, TextField
+from django.db import transaction
+from documents.models import Document, Element, Favourite, Font, TextField
+from rest_framework import serializers
 
 
 class FavouriteSerializer(serializers.ModelSerializer):
@@ -12,6 +11,12 @@ class FavouriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favourite
         fields = ('user', 'document')
+
+
+class FontSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Font
+        fields = '__all__'
 
 
 class TextFieldSerializer(serializers.ModelSerializer):
