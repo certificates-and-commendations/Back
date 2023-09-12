@@ -2,6 +2,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from users.models import User
 
+
 CATEGORY_CHOICES = (
     ('diplomas', 'Дипломы'),
     ('certificates', 'Сертификаты'),
@@ -117,13 +118,15 @@ class TextField(models.Model):
         verbose_name_plural = 'Поля'
 
     def __str__(self):
-        return self.pk
+        # return self.pk
+        return (f'поля текста для документа {self.document.title}')
 
 
 class Category(models.Model):
     """
     Модель представляет категории.
     """
+
     name = models.CharField(
         max_length=55,
         db_index=True,
@@ -170,7 +173,8 @@ class TemplateColor(models.Model):
         verbose_name_plural = 'Цвета фона'
 
     def __str__(self):
-        return self.pk
+        # return self.pk
+        return self.slug  # из-за ошибок админки пеменяла рк на слаг
 
 
 class Element(models.Model):
@@ -189,17 +193,36 @@ class Element(models.Model):
         verbose_name = 'Элемент'
         verbose_name_plural = 'Элементы'
 
+    # админка не принимает рк, сделала так
     def __str__(self):
-        return self.pk
+        # return self.pk
+        return (f'элемент для документа {self.document.title}')
 
 
 class Favourite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    """
+    Модель для избранных шаблонов
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='favorite',
+                             verbose_name='Пользователь',)
+    document = models.ForeignKey(Document, on_delete=models.CASCADE,
+                                 related_name='favorite',
+                                 verbose_name='Шаблон в избранном',)
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        # добавила проверку на уникальность
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'document'], name='unique_favorite'
+            )
+        ]
 
 
 class Font(models.Model):
     font = models.CharField(max_length=100)
     is_bold = models.BooleanField()
     is_italic = models.BooleanField()
-    font_file = models.FileField(upload_to='fonts/')
+    font_file = models.FileField(upload_to='fonts/')        

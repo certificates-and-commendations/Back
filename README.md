@@ -1,4 +1,7 @@
 # Back
+
+![example workflow](https://github.com/certificates-and-commendations/Back/actions/workflows/certificates_deploy.yml/badge.svg)
+
 ## Описание
 
 Благодаря этому проекту можно создавать грамоты, дипломы, благодарности и сертификаты.

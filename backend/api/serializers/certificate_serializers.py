@@ -10,7 +10,7 @@ class FavouriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Favourite
-        fields = ('user', 'certificate')
+        fields = ('user', 'document')
 
 
 class FontSerializer(serializers.ModelSerializer):
