@@ -1,7 +1,6 @@
+from api.utils import Base64ImageField
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
-
-from api.utils import Base64ImageField
 from users.models import User
 
 
