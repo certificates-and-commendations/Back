@@ -35,8 +35,8 @@ def regist_user(request):
         user = User.objects.get(email=email)
         user.is_active = False
         # Отправка кода на почту
-        code = user.code
-        gmail_send_message(code=code, email=email)
+        # code = user.code
+        # gmail_send_message(code=code, email=email)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     return Response(
