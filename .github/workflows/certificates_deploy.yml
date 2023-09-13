@@ -59,3 +59,4 @@ jobs:
           sudo docker-compose exec -T backend python manage.py migrate
           sudo docker-compose exec -T backend python manage.py collectstatic --no-input
           sudo docker cp credentials.json backend:/app/credentials.json
+          sudo docker cp token.json backend:/app/token.json
