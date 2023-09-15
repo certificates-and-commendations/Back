@@ -1,5 +1,6 @@
+from djoser.views import UserViewSet
 from api.views import (DocumentsViewSet, FavouriteViewSet, FontViewSet,
-                       UserViewSet, confirm_code, regist_user)
+                       confirm_code, regist_user)
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -16,8 +17,6 @@ user_router.register("users", UserViewSet, basename="users")
 def is_route_selected(url_pattern):
 
     urls = [
-        'auth/token/login/',
-        'auth/token/logout/',
         'users/',
         'users/me/',
     ]
