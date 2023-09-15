@@ -13,8 +13,9 @@ class CustomUserAdmin(admin.ModelAdmin):
         'avatar_image',
         'avatar',
         'code',
+        'is_active',
     )
-    list_filter = ('first_name', 'last_name',)
+    list_filter = ('first_name', 'last_name', 'is_active')
     search_fields = ('email', 'first_name',
                      'last_name',)
     ordering = ('id',)

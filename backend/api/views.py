@@ -55,6 +55,7 @@ def confirm_code(request):
             # Создание токена
             token = Token.objects.create(user=user)
             user.is_active = True
+            user.save()
             return Response({'Token': str(token)}, status=status.HTTP_200_OK)
 
     return Response({'Ошибка': 'Проверьте код'},

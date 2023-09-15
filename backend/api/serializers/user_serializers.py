@@ -6,8 +6,7 @@ from users.models import User
 
 class MyUserCreateSerializer(UserCreateSerializer):
     """Сериализатор для обработки запросов на создание пользователя.
-    Валидирует создание пользователя с юзернеймом 'me'."""
-
+    """
     class Meta:
         model = User
         fields = (
@@ -17,11 +16,13 @@ class MyUserCreateSerializer(UserCreateSerializer):
             'last_name',
             'avatar_image',
             'password',
+            'code',
+            'is_active',
         )
 
 
 class MyUserSerializer(UserSerializer):
-    """сериализатор для получения юзера"""
+    """Cериализатор для получения юзера"""
 
     avatar_image = Base64ImageField(required=False, allow_null=True)
 
@@ -34,6 +35,7 @@ class MyUserSerializer(UserSerializer):
             'last_name',
             'code',
             'avatar_image',
+            'is_active',
         )
 
 
