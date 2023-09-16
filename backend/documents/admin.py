@@ -81,7 +81,7 @@ class CategoryAdmin(admin.ModelAdmin):
         'name',
         'slug',
     )
-    list_filter = ('name', 'slug', )
+    list_filter = ('name', )
     search_fields = ('name', 'slug', )
 
 

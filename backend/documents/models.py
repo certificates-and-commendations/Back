@@ -1,13 +1,7 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from users.models import User
 
-CATEGORY_CHOICES = (
-    ('diplomas', 'Дипломы'),
-    ('certificates', 'Сертификаты'),
-    ('appreciations', 'Благодарности'),
-    ('awards', 'Грамоты'),
-)
 
 FONT_DECORATIONS = (
     ('underline', 'подчеркнутый'),
@@ -125,11 +119,16 @@ class Category(models.Model):
     """
     Модель представляет категории.
     """
+    name_validator = RegexValidator(
+        regex=r'^[A-Za-z]+$',
+        message='Название должно содержать буквы кириллицы',
+        code='invalid_name'
+    )
 
     name = models.CharField(
         max_length=55,
         db_index=True,
-        choices=CATEGORY_CHOICES,
+        validators=[RegexValidator],
         verbose_name='Категория',
         help_text='Введите категорию документа'
     )
@@ -225,3 +224,9 @@ class Font(models.Model):
     is_bold = models.BooleanField()
     is_italic = models.BooleanField()
     font_file = models.FileField(upload_to='fonts/')
+
+    # @property
+    # def default_font_file(self):
+    #     return (self.font_file.url
+    #             if self.font_file
+    #             else '/media/fonts/Arial.ttf')
