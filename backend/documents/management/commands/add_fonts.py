@@ -9,7 +9,7 @@ class Command(BaseCommand):
         fonts = (
             ('Arial', False, False, 'fonts/Arial.ttf'),
             ('Arial', True, False, 'fonts/Arial Bold.ttf'),
-            ('Arial', False, False, 'fonts/Arial Italic.ttf'),
+            ('Arial', True, False, 'fonts/Arial Italic.ttf'),
             ('Arial', True, True, 'fonts/Arial Bold Italic.ttf'),
             ('Montserrat', False, False, 'fonts/Montserrat-Regular.ttf'),
             ('Montserrat', True, False, 'fonts/Montserrat-Bold.ttf'),
