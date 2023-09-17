@@ -22,7 +22,7 @@ class Base64ImageField(serializers.ImageField):
 
 def create_thumbnail(document):
     if document.is_horizontal:
-        size = 192, 304
+        size = 304, 192
     else:
         size = 304, 460
     with Image.open(document.background) as backgound:
@@ -42,30 +42,34 @@ def create_thumbnail(document):
                 (text.coordinate_x + width, text.coordinate_y + height),
                 text.text,
                 font=font,
-                fill=text.font_color)
+                fill=text.font_color,
+                align=text.align)
+            if text.text_decoration == 'none':
+                continue
+            _, _, right, bottom = font.getbbox(text.text)
             if text.text_decoration == 'underline':
-                _, _, right, bottom = font.getbbox(text.text)
-                underline_y = (text.coordinate_y + height
-                               + (bottom - font.getmetrics()[1]) * 1.05)
-                draw.line([
-                    (text.coordinate_x + width, underline_y),
-                    (text.coordinate_x + width + right, underline_y)],
-                    fill=text.font_color,
-                    width=2)
+                line_y = (text.coordinate_y + height
+                          + (bottom - font.getmetrics()[1]) * 1.05)
             if text.text_decoration == 'strikethrough':
-                _, _, right, bottom = font.getbbox(text.text)
-                strikethrough_y = (text.coordinate_y + height
-                                   + (font.getmetrics()[0]
-                                      - font.getmetrics()[1])
-                                   )
-                draw.line([
-                    (text.coordinate_x + width, strikethrough_y),
-                    (text.coordinate_x + width + right, strikethrough_y)],
-                    fill=text.font_color,
-                    width=2)
-        im.thumbnail(size)
+                line_y = (text.coordinate_y + height
+                          + (font.getmetrics()[0]
+                             - font.getmetrics()[1]))
+            draw.line([
+                (text.coordinate_x + width, line_y),
+                (text.coordinate_x + width + right, line_y)],
+                fill=text.font_color, width=2)
+        elements = document.element_set.all()
+        for element in elements:
+            with Image.open(element.image) as foreground:
+                im = im.convert('RGBA')
+                foreground = foreground.convert('RGBA')
+                im.paste(foreground,
+                         (element.coordinate_x + int(width), element.coordinate_y + int(height) ),
+                         foreground)
+        im = im.convert('RGB')
+        im_resized = im.resize(size)
         thumb_io = BytesIO()
-        im.save(thumb_io, 'JPEG', quality=95)
+        im_resized.save(thumb_io, 'JPEG', quality=95)
         document.thumbnail = File(
             thumb_io,
             name=os.path.basename(document.background.name))
