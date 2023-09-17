@@ -23,7 +23,13 @@ class Command(BaseCommand):
              'fonts/WixMadeforDisplay-Regular.ttf'),
             ('WixMadeforDisplay', True, False,
              'fonts/WixMadeforDisplay-Bold.ttf'),
+            ('Times New Roman', False, False, 'fonts/Times New Roman.ttf'),
+            ('Times New Roman', True, False, 'fonts/Times New Roman Bold.ttf'),
+            ('Times New Roman', False, True,
+             'fonts/Times New Roman Italic.ttf'),
+            ('Times New Roman', True, True,
+             'fonts/Times New Roman Bold Italic.ttf'),
         )
         for font in fonts:
             f = dict(zip(headers, font))
-            Font.objects.create(**f)
+            Font.objects.get_or_create(**f)
