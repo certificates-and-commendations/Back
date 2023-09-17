@@ -14,26 +14,52 @@ Django 3.2
 
 djangorestframework 3.14.0
 
+### Инфраструктура: 
+* Docker
+* NGINX
+* GUNICORN
+* база даннных POSTGRES
+
 ### Запуск проекта в dev-режиме
 
-- Установите и активируйте виртуальное окружение
+- Установите и активируйте виртуальное окружение, утановите pip
 
 ```
 python -m venv venv
 
 source venv/Scripts/activate
 
-```
 python -m pip install --upgrade pip
-
+```
 - Установите зависимости из файла requirements.txt
 
 ```
 pip install -r requirements.txt
-
-
 ```
-- В папке с файлом manage.py выполните команду:
+- Выполните миграции БД. Из папки backend с файлом manage.py выполните команду:
+```
+python manage.py makemigrations
+python manage.py migrate
+```
+- Для загрузки категорий из папки backend с файлом manage.py выполните команду:
+```
+python manage.py add-category
+```
+- Для запуска сервера из папки backend с файлом manage.py выполните команду:
 
 ```
 python manage.py runserver
+```
+_Шаблон наполнения env-файла_
+
+```
+DB_ENGINE=django.db.backends.postgresql
+DB_NAME=postgres
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+DB_HOST=db
+DB_PORT=5432
+SECRET_KEY=
+DEBUG=False
+```
+***IP адресс проекта: http://185.93.111.238/***

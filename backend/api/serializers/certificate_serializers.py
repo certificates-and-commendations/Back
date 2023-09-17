@@ -57,7 +57,7 @@ class DocumentDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ('id', 'title', 'background', 'category', 'color',
+        fields = ('id', 'user', 'title', 'background', 'category', 'color',
                   'is_horizontal', 'texts', 'elements')
 
 
