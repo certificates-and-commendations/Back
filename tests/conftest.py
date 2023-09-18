@@ -39,7 +39,6 @@ def document(category, user):
         user=user,
         category=category,
         thumbnail='media/',
-        # text_fields=text_field,
         background='backgrounds/',
     )
 
