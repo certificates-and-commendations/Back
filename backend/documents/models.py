@@ -2,7 +2,6 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from users.models import User
 
-
 FONT_DECORATIONS = (
     ('underline', 'подчеркнутый'),
     ('strikethrough', 'зачеркнутый'),
@@ -112,7 +111,7 @@ class TextField(models.Model):
 
     def __str__(self):
         # return self.pk
-        return (f'поля текста для документа {self.document.title}')
+        return f'поля текста для документа {self.document.title}'
 
 
 class Category(models.Model):
@@ -120,7 +119,7 @@ class Category(models.Model):
     Модель представляет категории.
     """
     name_validator = RegexValidator(
-        regex=r'^[A-Za-z]+$',
+        regex=r'^[А-Яа-я]+$',
         message='Название должно содержать буквы кириллицы',
         code='invalid_name'
     )
@@ -128,7 +127,7 @@ class Category(models.Model):
     name = models.CharField(
         max_length=55,
         db_index=True,
-        validators=[RegexValidator],
+        validators=[name_validator],
         verbose_name='Категория',
         help_text='Введите категорию документа'
     )
@@ -194,7 +193,7 @@ class Element(models.Model):
     # админка не принимает рк, сделала так
     def __str__(self):
         # return self.pk
-        return (f'элемент для документа {self.document.title}')
+        return f'элемент для документа {self.document.title}'
 
 
 class Favourite(models.Model):
@@ -202,10 +201,10 @@ class Favourite(models.Model):
     Модель для избранных шаблонов
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='favorite',
+                             related_name='favourite',
                              verbose_name='Пользователь',)
     document = models.ForeignKey(Document, on_delete=models.CASCADE,
-                                 related_name='favorite',
+                                 related_name='favourite',
                                  verbose_name='Шаблон в избранном',)
 
     class Meta:
