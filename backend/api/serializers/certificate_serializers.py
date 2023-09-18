@@ -1,6 +1,7 @@
 from api.utils import Base64ImageField, create_thumbnail
 from django.db import transaction
 from documents.models import Document, Element, Favourite, Font, TextField
+from fontTools import ttLib
 from rest_framework import serializers
 
 
@@ -14,9 +15,24 @@ class FavouriteSerializer(serializers.ModelSerializer):
 
 
 class FontSerializer(serializers.ModelSerializer):
+    """Сериализатор шрифта"""
     class Meta:
         model = Font
-        fields = '__all__'
+        fields = ('id', 'font', 'is_bold', 'is_italic', 'font_file')
+        read_only_fields = ('id', 'font', 'is_bold', 'is_italic')
+
+    def create(self, validated_data):
+        tt = ttLib.TTFont(validated_data['font_file'])
+        subfamily = tt['name'].getDebugName(2)
+        font, created = Font.objects.get_or_create(
+            font=tt['name'].getDebugName(1),
+            is_bold=('Bold' in subfamily),
+            is_italic=('Italic' in subfamily)
+        )
+        if created:
+            font.font_file = validated_data['font_file']
+            font.save()
+        return font
 
 
 class TextFieldSerializer(serializers.ModelSerializer):
@@ -57,7 +73,7 @@ class DocumentDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Document
-        fields = ('id', 'title', 'background', 'category', 'color',
+        fields = ('id', 'user', 'title', 'background', 'category', 'color',
                   'is_horizontal', 'texts', 'elements')
 
 

@@ -22,7 +22,7 @@ class Base64ImageField(serializers.ImageField):
 
 def create_thumbnail(document):
     if document.is_horizontal:
-        size = 192, 304
+        size = 304, 192
     else:
         size = 304, 460
     with Image.open(document.background) as backgound:
@@ -42,7 +42,8 @@ def create_thumbnail(document):
                 (text.coordinate_x + width, text.coordinate_y + height),
                 text.text,
                 font=font,
-                fill=text.font_color)
+                fill=text.font_color,
+                align=text.align)
             if text.text_decoration == 'underline':
                 _, _, right, bottom = font.getbbox(text.text)
                 underline_y = (text.coordinate_y + height
@@ -63,9 +64,9 @@ def create_thumbnail(document):
                     (text.coordinate_x + width + right, strikethrough_y)],
                     fill=text.font_color,
                     width=2)
-        im.thumbnail(size)
+        im_resized = im.resize(size)
         thumb_io = BytesIO()
-        im.save(thumb_io, 'JPEG', quality=95)
+        im_resized.save(thumb_io, 'JPEG', quality=95)
         document.thumbnail = File(
             thumb_io,
             name=os.path.basename(document.background.name))

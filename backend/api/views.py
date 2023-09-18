@@ -1,5 +1,4 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import api_view
@@ -55,21 +54,11 @@ def confirm_code(request):
             # Создание токена
             token = Token.objects.create(user=user)
             user.is_active = True
+            user.save()
             return Response({'Token': str(token)}, status=status.HTTP_200_OK)
 
     return Response({'Ошибка': 'Проверьте код'},
                     status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserViewSet(DjoserUserViewSet):
-    """Убирает не используемые @action из user view"""
-    activation = None
-    resend_activation = None
-    reset_password = None
-    reset_password_confirm = None
-    set_username = None
-    reset_username = None
-    reset_username_confirm = None
 
 
 class FavouriteViewSet(mixins.CreateModelMixin,
