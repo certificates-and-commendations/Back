@@ -1,6 +1,9 @@
 name: certificates_main
 
 on:
+  push:
+    branches:
+      - fix/database
   pull_request:
     types:
       - opened
@@ -40,6 +43,8 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
+          sudo docker-compose exec -T backend python manage.py dumpdata --exclude auth.permission --exclude contenttypes > dump.json
+          sudo docker cp backend:/app/dump.json /root
           sudo docker-compose down
           sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/certificates_frontend:latest
           sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/certificates_backend:latest
@@ -53,9 +58,8 @@ jobs:
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
           echo DEBUG=${{ secrets.DEBUG }} >> .env 
           sudo docker-compose up -d --build
-          sudo docker-compose exec -T backend python manage.py migrate
+          sudo docker cp dump.json backend:/app/dump.json
+          sudo docker-compose exec -T backend python manage.py loaddata dump.json
           sudo docker-compose exec -T backend python manage.py collectstatic --no-input
-          sudo docker-compose exec -T backend python manage.py add-category
-          sudo docker-compose exec -T backend python manage.py add_fonts
           sudo docker cp credentials.json backend:/app/credentials.json
           sudo docker cp token.json backend:/app/token.json
