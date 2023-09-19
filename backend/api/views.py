@@ -1,7 +1,8 @@
+from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import api_view
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -14,6 +15,7 @@ from api.serializers.user_serializers import (ConfirmEmailSerializer,
 from documents.models import Document, Favourite, Font
 from .filters import DocumentFilter
 from users.models import User
+from .utils import create_pdf
 
 
 @api_view(['POST'])
@@ -84,6 +86,12 @@ class DocumentsViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = User.objects.get(id=1)
         serializer.save(user=user)
+
+    @action(methods=['GET',], detail=True)
+    def download(self, request, pk):
+        document = Document.objects.get(id=pk)
+        b = create_pdf(document)
+        return FileResponse(b, as_attachment=True, filename="hello.pdf")
 
 
 class FontViewSet(viewsets.ModelViewSet):

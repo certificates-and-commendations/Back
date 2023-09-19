@@ -8,9 +8,12 @@ from documents.models import Font
 from PIL import Image, ImageDraw, ImageFont
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.pdfmetrics import stringWidth
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
+from reportlab.platypus import Paragraph
 from rest_framework import serializers
+from reportlab.lib.styles import ParagraphStyle
 
 
 class Base64ImageField(serializers.ImageField):
@@ -80,10 +83,10 @@ def create_thumbnail(document):
 
 
 def create_pdf(document):
+    buffer = BytesIO()
     background = image_draw(document.background, document.element_set.all())
     doc_width, doc_height = background.size
-    canvas = Canvas(f'{document.title}.pdf', pagesize=background.size)
-    print(doc_width, doc_height)
+    canvas = Canvas(buffer, pagesize=background.size)
     width = doc_width / 2
     height = doc_height / 2
     canvas.drawImage(ImageReader(background), 0, 0)
@@ -91,14 +94,25 @@ def create_pdf(document):
     for text in texts:
         font = Font.objects.get(font=text.font, is_bold=text.is_bold,
                                 is_italic=text.is_italic)
-        rgb = (int(text.font_color[x - 2:x], 16) for x in range(3, 8, 2))
-        canvas.setFillColorRGB(*rgb)
         pdfmetrics.registerFont(TTFont(font.font, font.font_file.path))
         face = pdfmetrics.getFont(font.font).face
         string_height = (face.ascent - face.descent) / 1000 * text.font_size
-        canvas.setFont(f'{font.font}', text.font_size)
-        canvas.drawString(text.coordinate_x + width,
-                          (doc_height - text.coordinate_y - height
-                           - string_height), text.text)
+        style = ParagraphStyle(
+            name='custom',
+            fontName=font.font,
+            fontSize=text.font_size,
+            textColor=text.font_color)
+        decoration = {
+            'underline': f'<u>{text.text}</u>',
+            'strikethrough': f'<strike>{text.text}</strike>',
+            'none': f'{text.text}',
+        }
+        paragraph = Paragraph(decoration[text.text_decoration], style)
+        string_width = stringWidth(text.text, font.font, text.font_size)
+        paragraph.wrapOn(canvas, string_width, string_height)
+        paragraph.drawOn(canvas, text.coordinate_x + width,
+                         doc_height - text.coordinate_y - height)
     canvas.showPage()
     canvas.save()
+    buffer.seek(0)
+    return buffer
