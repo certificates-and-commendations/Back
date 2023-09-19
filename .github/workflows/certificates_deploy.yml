@@ -1,6 +1,7 @@
 name: certificates_main
 
 on:
+  push: [fix/database]
   pull_request:
     types:
       - opened
