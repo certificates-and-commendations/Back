@@ -59,8 +59,9 @@ jobs:
           echo DEBUG=${{ secrets.DEBUG }} >> .env 
           sudo docker-compose up -d --build
           sudo docker cp dump.json backend:/app/dump.json
-          sudo docker-compose exec -T backend python manage.py migrate
+          
           sudo docker-compose exec -T backend python manage.py loaddata dump.json
+          sudo docker-compose exec -T backend python manage.py migrate
           sudo docker-compose exec -T backend python manage.py collectstatic --no-input
           sudo docker cp credentials.json backend:/app/credentials.json
           sudo docker cp token.json backend:/app/token.json
