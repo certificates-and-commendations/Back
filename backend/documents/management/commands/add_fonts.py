@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
-from documents.models import Font
+from django.db import IntegrityError
+from documents.models import Document, Font, TextField
+from users.models import User
 
 
 class Command(BaseCommand):
@@ -33,3 +35,63 @@ class Command(BaseCommand):
         for font in fonts:
             f = dict(zip(headers, font))
             Font.objects.get_or_create(**f)
+
+        # Users
+        for i in range(3):
+            try:
+                user = User.objects.create_user(
+                    email=f'mail{i}@mail.com',
+                    password='Passw0rd!')
+                user.is_active = 1
+                user.save()
+            except IntegrityError:
+                self.stdout.write(f'user {i} already exists')
+
+        # Docs
+        texts_vertical = (
+            ('Грамота', -174, -146, 'Arial', 94, '#000000', False, False,
+             'none', 'center'),
+            ('вручается', -86, -32, 'Arial', 44, '#000000', False, False,
+             'none', 'left'),
+            ('Имя Фамилия', -86, 41, 'Arial', 30, '#000000', False, False,
+             'none', 'right'),
+            ('Год', -151, 241, 'Arial', 14, '#000000', False, False,
+             'none', 'left'),
+            ('Подпись', 107, 241, 'Arial', 14, '#000000', False, False,
+             'none', 'left'),
+        )
+        texts_horizontal = (
+            ('Грамота', -180, -214, 'Arial', 94, '#000000', False, False,
+             'none', 'center'),
+            ('вручается', -95, -90, 'Arial', 44, '#000000', False, False,
+             'none', 'left'),
+            ('Имя Фамилия', -86, -17, 'Arial', 30, '#000000', False, False,
+             'none', 'right'),
+            ('Год', -159, 196, 'Arial', 14, '#000000', False, False,
+             'none', 'left'),
+            ('Подпись', 122, 196, 'Arial', 14, '#000000', False, False,
+             'none', 'left'),
+        )
+        headers = ('text', 'coordinate_x', 'coordinate_y', 'font',
+                   'font_size', 'font_color', 'is_bold', 'is_italic',
+                   'text_decoration', 'align')
+        format = {
+            True: texts_horizontal,
+            False: texts_vertical
+        }
+        user = User.objects.get(id=1)
+        for i in range(10):
+            document, created = Document.objects.get_or_create(
+                title=f'Шаблон {i+1}',
+                user=user,
+                background=f'backgrounds/template0{i}.jpg',
+                thumbnail=f'thumbnails/template0{i}.jpg'
+            )
+            if document.background.width > document.background.height:
+                document.is_horizontal = True
+                document.save()
+            TextField.objects.bulk_create(
+                TextField(document=document,
+                          **dict(zip(headers, t)))
+                for t in format[document.is_horizontal]
+            )
