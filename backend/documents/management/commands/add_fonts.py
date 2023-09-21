@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
-from documents.models import Document, Font, TextField
+from documents.models import Font   # Document, TextField
 from users.models import User
 
 
@@ -36,41 +36,41 @@ class Command(BaseCommand):
             f = dict(zip(headers, font))
             Font.objects.get_or_create(**f)
 
-        # # Users
-        # for i in range(3):
-        #     try:
-        #         user = User.objects.create_user(
-        #             email=f'mail{i}@mail.com',
-        #             password='Passw0rd!')
-        #         user.is_active = 1
-        #         user.save()
-        #     except IntegrityError:
-        #         self.stdout.write(f'user {i} already exists')
+        # Users
+        for i in range(3):
+            try:
+                user = User.objects.create_user(
+                    email=f'mail{i}@mail.com',
+                    password='Passw0rd!')
+                user.is_active = 1
+                user.save()
+            except IntegrityError:
+                self.stdout.write(f'user {i} already exists')
 
-        # # Docs
+        # Docs
         # texts_vertical = (
-        #     ('Грамота', -174, -146, 'Arial', 94, '#000000', False, False,
+        #     ('Грамота', -174, -146, 19, 94, '#000000',
         #      'none', 'center'),
-        #     ('вручается', -86, -32, 'Arial', 44, '#000000', False, False,
-        #      'none', 'left'),
-        #     ('Имя Фамилия', -86, 41, 'Arial', 30, '#000000', False, False,
-        #      'none', 'right'),
-        #     ('Год', -151, 241, 'Arial', 14, '#000000', False, False,
-        #      'none', 'left'),
-        #     ('Подпись', 107, 241, 'Arial', 14, '#000000', False, False,
-        #      'none', 'left'),
+            # ('вручается', -86, -32, 'Arial', 44, '#000000', False, False,
+            #  'none', 'left'),
+            # ('Имя Фамилия', -86, 41, 'Arial', 30, '#000000', False, False,
+            #  'none', 'right'),
+            # ('Год', -151, 241, 'Arial', 14, '#000000', False, False,
+            #  'none', 'left'),
+            # ('Подпись', 107, 241, 'Arial', 14, '#000000', False, False,
+            #  'none', 'left'),
         # )
         # texts_horizontal = (
-        #     ('Грамота', -180, -214, 'Arial', 94, '#000000', False, False,
-        #      'none', 'center'),
-        #     ('вручается', -95, -90, 'Arial', 44, '#000000', False, False,
-        #      'none', 'left'),
-        #     ('Имя Фамилия', -86, -17, 'Arial', 30, '#000000', False, False,
-        #      'none', 'right'),
-        #     ('Год', -159, 196, 'Arial', 14, '#000000', False, False,
-        #      'none', 'left'),
-        #     ('Подпись', 122, 196, 'Arial', 14, '#000000', False, False,
-        #      'none', 'left'),
+        #     ('Грамота', -180, -214, 19, 94, '#000000',
+        #     'none', 'center'),
+            # ('вручается', -95, -90, 'Arial', 44, '#000000', False, False,
+            #  'none', 'left'),
+            # ('Имя Фамилия', -86, -17, 'Arial', 30, '#000000', False, False,
+            #  'none', 'right'),
+            # ('Год', -159, 196, 'Arial', 14, '#000000', False, False,
+            #  'none', 'left'),
+            # ('Подпись', 122, 196, 'Arial', 14, '#000000', False, False,
+            #  'none', 'left'),
         # )
         # headers = ('text', 'coordinate_x', 'coordinate_y', 'font',
         #            'font_size', 'font_color', 'is_bold', 'is_italic',
