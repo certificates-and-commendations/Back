@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from .models import (Category, Document, Element, Favourite, TemplateColor,
+from .models import (Category, Document, Element,
+                     Font, Favourite, TemplateColor,
                      TextField)
 
 
@@ -63,8 +64,6 @@ class TextFieldAdmin(admin.ModelAdmin):
         'font',
         'font_size',
         'font_color',
-        'is_bold',
-        'is_italic',
         'text_decoration',
         'align',
     )
@@ -116,3 +115,19 @@ class ElementAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Element, ElementAdmin)
+
+
+class FontAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id',
+        'font',
+        'is_bold',
+        'is_italic',
+        'font_file',
+    )
+    list_filter = ('font', )
+    search_fields = ('font', )
+
+
+admin.site.register(Font, FontAdmin)

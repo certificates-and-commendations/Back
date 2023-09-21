@@ -35,12 +35,25 @@ class FontSerializer(serializers.ModelSerializer):
         return font
 
 
+class FontInTextSerializer(serializers.ModelSerializer):
+    """Сериализатор шрифта"""
+
+    class Meta:
+        model = Font
+        fields = ('font', 'is_bold', 'is_italic')
+
+
 class TextFieldSerializer(serializers.ModelSerializer):
+    """Сериализатор для TextField"""
+    font = FontInTextSerializer()
+
     class Meta:
         model = TextField
-        fields = ('text', 'coordinate_y', 'coordinate_x', 'font', 'font_size',
-                  'font_color', 'is_bold', 'is_italic', 'text_decoration',
-                  'align')
+        fields = (
+            'id', 'text', 'coordinate_y', 'coordinate_x', 'font',
+            'font_size', 'font_color', 'text_decoration', 'align'
+        )
+        read_only_fields = ('id',)
 
 
 class ElementSerializer(serializers.ModelSerializer):
@@ -93,7 +106,10 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
         elements = validated_data.pop('elements')
         document = Document.objects.create(**validated_data)
         for text in texts:
-            TextField.objects.create(document=document, **text)
+            font_data = text.pop('font') # достаем фонт из текста 
+            font = Font.objects.get(**font_data)
+            TextField.objects.create(document=document, font=font, **text)
+        
         for element in elements:
             Element.objects.create(document=document, **element)
         create_thumbnail(document)
