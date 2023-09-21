@@ -213,7 +213,7 @@ class Favourite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        # добавила проверку на уникальность
+
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'document'], name='unique_favorite'
