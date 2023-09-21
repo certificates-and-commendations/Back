@@ -106,10 +106,10 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
         elements = validated_data.pop('elements')
         document = Document.objects.create(**validated_data)
         for text in texts:
-            font_data = text.pop('font') # достаем фонт из текста 
+            font_data = text.pop('font')
             font = Font.objects.get(**font_data)
             TextField.objects.create(document=document, font=font, **text)
-        
+
         for element in elements:
             Element.objects.create(document=document, **element)
         create_thumbnail(document)
