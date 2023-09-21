@@ -3,15 +3,23 @@ from django.db import transaction
 from documents.models import Document, Element, Favourite, Font, TextField
 from fontTools import ttLib
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 
 class FavouriteSerializer(serializers.ModelSerializer):
     """Сериализатор избранные сертификаты"""
-    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
-
     class Meta:
         model = Favourite
         fields = ('user', 'document')
+        extra_kwargs = {
+            'user': {'write_only': True}
+        }
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Favourite.objects.all(),
+                fields=['user', 'document']
+            )
+        ]
 
 
 class FontSerializer(serializers.ModelSerializer):
