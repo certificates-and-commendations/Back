@@ -34,6 +34,10 @@ def regist_user(request):
         code = user.code
         gmail_send_message(code=code, email=email)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(
+        {'Ошибка': 'Проверьте введенный email и/или пароль'},
+        status=status.HTTP_400_BAD_REQUEST
+    )
 
 
 @swagger_auto_schema(method='POST', request_body=ConfirmEmailSerializer)
