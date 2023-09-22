@@ -1,8 +1,10 @@
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action, api_view
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -18,18 +20,12 @@ from users.models import User
 from .utils import create_pdf
 
 
+@swagger_auto_schema(method='POST', request_body=MyUserCreateSerializer)
 @api_view(['POST'])
 def regist_user(request):
     """Регистрация пользователей"""
     serializer = MyUserCreateSerializer(data=request.data)
-    if User.objects.filter(
-            email=request.data.get('email')
-    ).exists():
-        return Response(
-            {'Ошибка': 'Пользователь с таким email уже существует'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    if serializer.is_valid():
+    if serializer.is_valid(raise_exception=True):
         serializer.save()
         email = serializer.data.get('email')
         user = User.objects.get(email=email)
@@ -38,13 +34,13 @@ def regist_user(request):
         code = user.code
         gmail_send_message(code=code, email=email)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
     return Response(
         {'Ошибка': 'Проверьте введенный email и/или пароль'},
         status=status.HTTP_400_BAD_REQUEST
     )
 
 
+@swagger_auto_schema(method='POST', request_body=ConfirmEmailSerializer)
 @api_view(['POST'])
 def confirm_code(request):
     """Подтверждение почты по коду"""
@@ -81,6 +77,8 @@ class DocumentsViewSet(viewsets.ModelViewSet):
             return DocumentDetailSerializer
         if self.action == 'create':
             return DocumentDetailWriteSerializer
+        if self.action == 'favourite':
+            return FavouriteSerializer
         return DocumentSerializer
 
     def perform_create(self, serializer):
@@ -92,6 +90,19 @@ class DocumentsViewSet(viewsets.ModelViewSet):
         document = Document.objects.get(id=pk)
         b = create_pdf(document)
         return FileResponse(b, as_attachment=True, filename="hello.pdf")
+
+    @action(methods=['DELETE', 'POST'], detail=True,
+            permission_classes=[IsAuthenticated])
+    def favourite(self, request, pk):
+        user = request.user
+        if request.method == 'POST':
+            serializer = self.get_serializer(
+                data={'user': user.id, 'document': pk})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+        Favourite.objects.filter(user=user, document=pk).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class FontViewSet(viewsets.ModelViewSet):
