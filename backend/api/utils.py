@@ -55,8 +55,7 @@ def create_thumbnail(document):
     draw = ImageDraw.Draw(im)
     texts = document.textfield_set.all()
     for text in texts:
-        ff = Font.objects.get(font=text.font, is_bold=text.is_bold,
-                              is_italic=text.is_italic)
+        ff = Font.objects.get(id=text.font_id)
         font = ImageFont.truetype(ff.font_file, text.font_size)
         draw.text((text.coordinate_x + width, text.coordinate_y + height),
                   text.text, font=font, fill=text.font_color, align=text.align)
@@ -92,8 +91,7 @@ def create_pdf(document):
     canvas.drawImage(ImageReader(background), 0, 0)
     texts = document.textfield_set.all()
     for text in texts:
-        font = Font.objects.get(font=text.font, is_bold=text.is_bold,
-                                is_italic=text.is_italic)
+        font = Font.objects.get(id=text.font_id)
         pdfmetrics.registerFont(TTFont(font.font, font.font_file.path))
         face = pdfmetrics.getFont(font.font).face
         string_height = (face.ascent - face.descent) / 1000 * text.font_size

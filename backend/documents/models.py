@@ -75,8 +75,14 @@ class TextField(models.Model):
     text = models.CharField(max_length=255, verbose_name='Текст поля')
     coordinate_y = models.IntegerField(verbose_name='Координата Y')
     coordinate_x = models.IntegerField(verbose_name='Координата X')
-    font = models.CharField(
+
+    font = models.ForeignKey(
+        'Font',
+        related_name='text',
         max_length=50,
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
         verbose_name='Название шрифта',
         help_text='Введите название шрифта'
     )
@@ -92,8 +98,6 @@ class TextField(models.Model):
         max_length=7,
         verbose_name='Цвет шрифта'
     )
-    is_bold = models.BooleanField(default=False)
-    is_italic = models.BooleanField(default=False)
     text_decoration = models.CharField(
         max_length=20,
         choices=FONT_DECORATIONS,
@@ -110,7 +114,6 @@ class TextField(models.Model):
         verbose_name_plural = 'Поля'
 
     def __str__(self):
-        # return self.pk
         return f'поля текста для документа {self.document.title}'
 
 
@@ -210,7 +213,7 @@ class Favourite(models.Model):
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        # добавила проверку на уникальность
+
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'document'], name='unique_favorite'
@@ -219,13 +222,15 @@ class Favourite(models.Model):
 
 
 class Font(models.Model):
+    """Модель для шрифтов."""
     font = models.CharField(max_length=100)
     is_bold = models.BooleanField()
     is_italic = models.BooleanField()
     font_file = models.FileField(upload_to='fonts/')
 
-    # @property
-    # def default_font_file(self):
-    #     return (self.font_file.url
-    #             if self.font_file
-    #             else '/media/fonts/Arial.ttf')
+    class Meta:
+        verbose_name = 'Шрифт'
+        verbose_name_plural = 'Шрифты'
+
+    def __str__(self):
+        return self.font
