@@ -15,7 +15,8 @@ def client():
 def user(django_user_model):
     return django_user_model.objects.create_user(
         email='john_doe@email.com',
-        password='12345678'
+        password='12345678',
+        is_active=True,
     )
 
 
@@ -44,17 +45,15 @@ def document(category, user):
 
 
 @pytest.fixture
-def text_field(document):
+def text_field(document, font):
     return TextField.objects.create(
         document=document,
         text='Test Text',
         coordinate_y=10,
         coordinate_x=10,
-        font='Arial',
+        font=font,
         font_size=12,
         font_color='#000000',
-        is_bold=False,
-        is_italic=False,
         text_decoration='none',
         align='left'
     )
@@ -86,3 +85,17 @@ def font():
         is_italic=False,
         font_file='arial.ttf'
     )
+
+
+@pytest.fixture
+def document_horizontal(user):
+    return Document.objects.create(
+        title='Horizontal Document',
+        user=user,
+        category=Category.objects.create(
+            name='certificates',
+            slug='certificates'),
+        thumbnail='media/',
+        background='backgrounds/',
+        is_horizontal=True,
+        )
