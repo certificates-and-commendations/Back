@@ -45,6 +45,10 @@ python manage.py migrate
 ```
 python manage.py add-category
 ```
+- Для загрузки дефолтных данных в базу из папки backend с файлом manage.py выполните команду:
+```
+python manage.py add_fonts
+```
 - Для запуска сервера из папки backend с файлом manage.py выполните команду:
 
 ```
