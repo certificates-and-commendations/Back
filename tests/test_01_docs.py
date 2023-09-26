@@ -81,9 +81,9 @@ class TestDocumentsModels:
         assert document.user.email == user.email
         assert document.category.name == 'diplomas'
 
-    def test_text_field_creation(self, text_field):
+    def test_text_field_creation(self, text_field, font):
         assert text_field.text == 'Test Text'
-        assert text_field.font == 'Arial'
+        assert text_field.font == font
 
     def test_category_creation(self, category):
         assert category.name == 'diplomas'
