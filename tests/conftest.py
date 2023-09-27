@@ -81,9 +81,9 @@ def element(document):
 def font():
     return Font.objects.create(
         font='Arial',
-        is_bold=True,
+        is_bold=False,
         is_italic=False,
-        font_file='arial.ttf'
+        font_file='fonts/Arial.ttf'
     )
 
 
