@@ -49,7 +49,7 @@ def test_documents_post(client, mocker, font, user, tmp_path):
                 'coordinate_y': -146,
                 'font': {
                     'font': 'Arial',
-                    'is_bold': False,
+                    'is_bold': True,
                     'is_italic': False
                 },
                 'font_size': 94,

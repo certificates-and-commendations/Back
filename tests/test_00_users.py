@@ -117,3 +117,16 @@ def test_regist_confirm(client, user):
     assert response.status_code == 200, ('Не удалось подтвердить почту')
     assert 'Token' in response.json(), ('После успешного подтверждения почты '
                                         'не получен токен')
+
+
+def test_user_delete(client, user, user_token):
+    data = {
+        'current_password': '12345678',
+        }
+    response = client.delete(f'{URL_USERS}{user.id}/', data, format='json')
+    assert response.status_code == 401, (
+        'Неавторизированному пользователю удалось удалить профиль')
+    client.credentials(HTTP_AUTHORIZATION=f'Token {user_token.key}')
+    response = client.delete(f'{URL_USERS}{user.id}/', data, format='json')
+    assert response.status_code == 204, (
+        'Авторизированному пользователю не удалось удалить свой профиль')

@@ -93,7 +93,7 @@ class TestDocumentsModels:
         assert font.font == 'Arial'
         assert font.is_bold
         assert not font.is_italic
-        assert font.font_file == 'arial.ttf'
+        assert font.font_file == 'fonts/Arial.ttf'
 
     def test_element_creation(self, element):
         assert element.coordinate_y == 20
