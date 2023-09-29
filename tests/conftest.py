@@ -83,7 +83,7 @@ def font():
         font='Arial',
         is_bold=True,
         is_italic=False,
-        font_file='arial.ttf'
+        font_file='fonts/Arial.ttf'
     )
 
 
