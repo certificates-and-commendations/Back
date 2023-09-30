@@ -86,3 +86,47 @@ def test_user_logout(client, user_token):
     response = client.post(f'{URL_TOKEN}logout/')
     assert response.status_code == 204, (
         'Не удалось удалить токен авторизованного пользователя')
+
+
+def test_user_regist(client, mocker):
+    mocker.patch(
+        'api.views.gmail_send_message'
+    )
+    valid_user = {
+        'email': 'mail0@mail.com',
+        'password': 'Passw0rd!'
+    }
+    response = client.post('/api/auth/regist/', valid_user, format='json')
+    assert response.status_code == 200, ('Не удалось зарегистрировать '
+                                         'пользователя')
+    not_valid_user = {
+        'email': 'mail0@mail.com',
+        'password': '1'
+    }
+    response = client.post('/api/auth/regist/', not_valid_user, format='json')
+    assert response.status_code == 400, ('Удалось зарегистрировать '
+                                         'пользователя с простым паролем')
+
+
+def test_regist_confirm(client, user):
+    data = {
+        'code': user.code,
+        'email': user.email
+    }
+    response = client.post('/api/auth/confirm/', data, format='json')
+    assert response.status_code == 200, ('Не удалось подтвердить почту')
+    assert 'Token' in response.json(), ('После успешного подтверждения почты '
+                                        'не получен токен')
+
+
+def test_user_delete(client, user, user_token):
+    data = {
+        'current_password': '12345678',
+        }
+    response = client.delete(f'{URL_USERS}{user.id}/', data, format='json')
+    assert response.status_code == 401, (
+        'Неавторизированному пользователю удалось удалить профиль')
+    client.credentials(HTTP_AUTHORIZATION=f'Token {user_token.key}')
+    response = client.delete(f'{URL_USERS}{user.id}/', data, format='json')
+    assert response.status_code == 204, (
+        'Авторизированному пользователю не удалось удалить свой профиль')
