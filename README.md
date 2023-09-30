@@ -18,7 +18,7 @@ djangorestframework 3.14.0
 * Docker
 * NGINX
 * GUNICORN
-* база даннных POSTGRES
+* база даннных POSTGRESQL
 
 ### Запуск проекта в dev-режиме
 
@@ -59,8 +59,8 @@ _Шаблон наполнения env-файла_
 ```
 DB_ENGINE=django.db.backends.postgresql
 DB_NAME=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
+POSTGRES_USER=
+POSTGRES_PASSWORD=
 DB_HOST=db
 DB_PORT=5432
 SECRET_KEY=
