@@ -14,6 +14,7 @@ class FavouriteInline(admin.TabularInline):
 
 class TextFieldInline(admin.TabularInline):
     model = TextField
+    fk_name = "document"
     min_num = 0
     extra = 0
 
@@ -52,9 +53,12 @@ class DocumentAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-        thumbnail = create_thumbnail(obj)
-        obj.save()
-        return thumbnail
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        document = form.instance
+        create_thumbnail(document)
+        document.save()
 
 
 admin.site.register(Document, DocumentAdmin)
