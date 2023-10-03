@@ -118,9 +118,8 @@ def reset_code(request):
                                 status=status.HTTP_200_OK)
             return Response({'Ошибка': 'Неверный код для смены пароля.'},
                             status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
     return Response({'Ошибка': 'Код не был передан.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
@@ -144,9 +143,8 @@ def reset_password(request):
             del request.session['recovery_code_entered']
             return Response({'message': 'Пароль успешно изменен.'},
                             status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)
     return Response({'message': 'Введите новый пароль и его подтверждение для '
                     'вашей учетной записи.'},
                     status=status.HTTP_400_BAD_REQUEST)
