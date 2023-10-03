@@ -1,9 +1,10 @@
-from api.utils import Base64ImageField, create_thumbnail
 from django.db import transaction
 from documents.models import Document, Element, Favourite, Font, TextField
 from fontTools import ttLib
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
+
+from api.utils import Base64ImageField, create_thumbnail
 
 
 class FavouriteSerializer(serializers.ModelSerializer):

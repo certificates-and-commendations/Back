@@ -13,7 +13,35 @@ from googleapiclient.errors import HttpError
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
 
-def gmail_send_message(code, email):
+def create_activation_email(code, email):
+    message = EmailMessage()
+
+    message.set_content(
+        'Код активации для подтверждения вашего аккаунта: ' + str(code)
+    )
+
+    message['To'] = email
+    message['From'] = 'gduser2@workspacesamples.dev'
+    message['Subject'] = 'Код активации'
+
+    return message
+
+
+def reset_password(code, email):
+    message = EmailMessage()
+
+    message.set_content(
+        'Код для сброса пароля вашего аккаунта: ' + str(code)
+    )
+
+    message['To'] = email
+    message['From'] = 'gduser2@workspacesamples.dev'
+    message['Subject'] = 'Код для сброса пароля'
+
+    return message
+
+
+def gmail_send_message(code, email, activation=True):
     creds = None
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -33,14 +61,10 @@ def gmail_send_message(code, email):
         service = build('gmail', 'v1', credentials=creds)
         message = EmailMessage()
 
-        message.set_content(
-            'Код активации для подтверждения вашего аккаунта: ' + str(code)
-        )
-
-        message['To'] = email
-        message['From'] = 'gduser2@workspacesamples.dev'
-        message['Subject'] = 'Код активации'
-
+        if activation:
+            message = create_activation_email(code, email)
+        else:
+            message = reset_password(code, email)
         # encoded message
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 
