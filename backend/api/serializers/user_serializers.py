@@ -1,6 +1,4 @@
 from django.contrib.auth import password_validation
-from django.core.exceptions import ValidationError
-from django.core.validators import EmailValidator
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
@@ -39,15 +37,6 @@ class ConfirmEmailSerializer(serializers.Serializer):
 class RequestResetPasswordSerializer(serializers.Serializer):
     """Сериализатор для отправки кода на почту для сброса пароля."""
     email = serializers.EmailField(required=True)
-
-    def validate_email(self, value):
-        email_validator = EmailValidator()
-        try:
-            email_validator(value)
-        except ValidationError:
-            raise serializers.ValidationError('Неверный формат адреса '
-                                              'электронной почты.')
-        return value
 
 
 class CodeValidationSerializer(serializers.Serializer):

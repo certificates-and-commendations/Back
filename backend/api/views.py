@@ -67,7 +67,8 @@ def confirm_code(request):
                     status=status.HTTP_400_BAD_REQUEST)
 
 
-@swagger_auto_schema(method='POST', request_body=ConfirmEmailSerializer)
+@swagger_auto_schema(method='POST',
+                     request_body=RequestResetPasswordSerializer)
 @api_view(['POST'])
 def send_reset_code(request):
     'Генерация и отправка кода на почту для сброса пароля.'
@@ -98,7 +99,7 @@ def send_reset_code(request):
                     status=status.HTTP_200_OK)
 
 
-@swagger_auto_schema(method='POST', request_body=ConfirmEmailSerializer)
+@swagger_auto_schema(method='POST', request_body=CodeValidationSerializer)
 @api_view(['POST'])
 def reset_code(request):
     """Ввод кода для перехода на форму сброса пароля."""
@@ -124,7 +125,7 @@ def reset_code(request):
                     status=status.HTTP_400_BAD_REQUEST)
 
 
-@swagger_auto_schema(method='POST', request_body=ConfirmEmailSerializer)
+@swagger_auto_schema(method='POST', request_body=ResetPasswordSerializer)
 @api_view(['POST'])
 def reset_password(request):
     """Сброс пароля."""
