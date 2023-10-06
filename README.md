@@ -67,3 +67,5 @@ SECRET_KEY=
 DEBUG=False
 ```
 ***IP адресс проекта: http://185.93.111.238/***
+
+certificates.acceleratorpracticum.ru
