@@ -41,6 +41,11 @@ pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 ```
+- Для создания суперюзера из папки backend с файлом manage.py выполните команду:
+```
+python manage.py createsuperuser
+```
+
 - Для загрузки категорий из папки backend с файлом manage.py выполните команду:
 ```
 python manage.py add-category
