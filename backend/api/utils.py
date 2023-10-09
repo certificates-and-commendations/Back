@@ -14,7 +14,13 @@ from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import Paragraph
 from rest_framework import serializers
 from reportlab.lib.styles import ParagraphStyle
-
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.neighbors import KDTree
+from documents.models import TemplateColor
+from django.db.models import F, Value, IntegerField
+from data.colors import COLORS
 
 class Base64ImageField(serializers.ImageField):
     def to_internal_value(self, data):
@@ -114,3 +120,27 @@ def create_pdf(document):
     canvas.save()
     buffer.seek(0)
     return buffer
+
+
+def dominant_color(img, n=3):
+    im = Image.open(img)
+    im = im.resize((100, 100))
+    image = np.asarray(im)
+    pixels = image.reshape(-1, 3)
+    kmeans = KMeans(n_clusters=n, n_init='auto')
+    kmeans.fit(pixels)
+    colors = kmeans.cluster_centers_
+    colors = colors.astype(int)
+    X = np.asarray(list(COLORS.keys()))
+    tree = KDTree(X, leaf_size=2)
+    for c in colors:
+        dist, ind = tree.query(c.reshape(-1, 3), k=1)
+        print(c, dist, COLORS[tuple(X[ind[0, 0]])])
+    plt.imshow([[colors[i] for i in range(len(colors))]])
+    plt.show()
+    a =[
+        TemplateColor.objects.annotate(
+            distance=(F('red') - c[0])**2 + (F('green') - c[1])**2
+            + (F('blue') - c[2])**2).order_by('distance').first()
+        for c in colors]
+    return a

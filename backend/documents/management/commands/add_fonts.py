@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
-from documents.models import Font, Document, TextField
+from documents.models import Font, Document, TextField, TemplateColor
 from users.models import User
 
 
@@ -77,6 +77,8 @@ class Command(BaseCommand):
                 background=f'backgrounds/template0{i}.jpg',
                 thumbnail=f'thumbnails/template0{i}.jpg'
             )
+            if not created:
+                continue
             if document.background.width > document.background.height:
                 document.is_horizontal = True
                 document.save()
@@ -85,3 +87,23 @@ class Command(BaseCommand):
                           **dict(zip(headers, t)))
                 for t in format[document.is_horizontal]
             )
+
+        # Colours
+        colours = (
+            ('#FFFFFF', 'White', 255, 255, 255),
+            ('#000000', 'Black', 0, 0, 0),
+            ('#808080', 'Grey', 128, 128, 128),
+            ('#FF0000', 'Red', 255, 0, 0),
+            ('#FF8000', 'Orange', 255, 128, 0),
+            ('#FFFF00', 'Yellow', 255, 255, 0),
+            ('#00FF00', 'Green', 0, 255, 0),
+            ('#00FFFF', 'Cyan', 0, 255, 255),
+            ('#0000FF', 'Blue', 0, 0, 255),
+            ('#800080', 'Purple', 128, 0, 255),
+            ('#FFC0CB', 'Pink', 255, 192, 203),
+            ('#A52A2A', 'Brown', 1165, 42, 42),
+        )
+        headers = ('hex', 'slug', 'red', 'green', 'blue',)
+
+        TemplateColor.objects.bulk_create(
+            TemplateColor(**dict(zip(headers, c))) for c in colours)
