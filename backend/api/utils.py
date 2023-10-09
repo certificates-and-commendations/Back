@@ -130,10 +130,10 @@ def dominant_color(img, n=3):
     kmeans.fit(pixels)
     colors = kmeans.cluster_centers_
     colors = colors.astype(int)
-    X = np.asarray(list(COLORS.keys()))
-    tree = KDTree(X, leaf_size=2)
+    x = np.asarray(list(COLORS.keys()))
+    tree = KDTree(x, leaf_size=2)
     color_tags = set()
     for c in colors:
         _, ind = tree.query(c.reshape(-1, 3), k=1)
-        color_tags.add(COLORS[tuple(X[ind[0, 0]])])
+        color_tags.add(COLORS[tuple(x[ind[0, 0]])])
     return TemplateColor.objects.filter(slug__in=color_tags)

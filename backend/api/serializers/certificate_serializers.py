@@ -1,7 +1,7 @@
 from api.utils import Base64ImageField, create_thumbnail, dominant_color
 from django.db import transaction
 from documents.models import (Document, DocumentColor, Element, Favourite,
-                              Font, TextField)
+                              Font, TemplateColor, TextField)
 from fontTools import ttLib
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -148,3 +148,9 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
         elements = validated_data.pop('elements')
         self.create_texts_elements(instance, texts, elements)
         return super().update(instance=instance, validated_data=validated_data)
+
+
+class ColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemplateColor
+        fields = ('__all__')
