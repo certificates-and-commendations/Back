@@ -233,3 +233,8 @@ class Font(models.Model):
 
     def __str__(self):
         return self.font
+
+
+class DocumentColor(models.Model):
+    document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    color = models.ForeignKey(TemplateColor, on_delete=models.DO_NOTHING)

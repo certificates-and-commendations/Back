@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
-from documents.models import Font, Document, TextField
+from api.utils import dominant_color
+from documents.models import (Font, Document, DocumentColor, TextField,
+                              TemplateColor)
 from users.models import User
 
 
@@ -47,6 +49,26 @@ class Command(BaseCommand):
             except IntegrityError:
                 self.stdout.write(f'user {i} already exists')
 
+        # Colours
+        colours = (
+            ('#FFFFFF', 'white'),
+            ('#000000', 'black'),
+            ('#808080', 'grey'),
+            ('#FF0000', 'red'),
+            ('#FF8000', 'orange'),
+            ('#FFFF00', 'yellow'),
+            ('#00FF00', 'green'),
+            ('#00FFFF', 'cyan'),
+            ('#0000FF', 'blue'),
+            ('#800080', 'purple'),
+            ('#FFC0CB', 'pink'),
+            ('#A52A2A', 'brown'),
+        )
+        headers = ('hex', 'slug')
+
+        TemplateColor.objects.bulk_create(
+            TemplateColor(**dict(zip(headers, c))) for c in colours)
+
         # Docs
         font = Font.objects.get(id=1)
         texts_vertical = (
@@ -77,6 +99,13 @@ class Command(BaseCommand):
                 background=f'backgrounds/template0{i}.jpg',
                 thumbnail=f'thumbnails/template0{i}.jpg'
             )
+            if not created:
+                continue
+            print(document.background)
+            colors = dominant_color(document.background)
+            print(colors)
+            for color in colors:
+                DocumentColor.objects.create(document=document, color=color)
             if document.background.width > document.background.height:
                 document.is_horizontal = True
                 document.save()

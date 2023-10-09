@@ -10,11 +10,11 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import (
-    DocumentDetailSerializer, DocumentDetailWriteSerializer,
+    ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
     DocumentSerializer, FavouriteSerializer, FontSerializer)
 from api.serializers.user_serializers import (ConfirmEmailSerializer,
                                               MyUserCreateSerializer)
-from documents.models import Document, Favourite, Font
+from documents.models import Document, Favourite, Font, TemplateColor
 from .filters import DocumentFilter
 from users.models import User
 from .utils import create_pdf
@@ -57,15 +57,6 @@ def confirm_code(request):
 
     return Response({'Ошибка': 'Проверьте код'},
                     status=status.HTTP_400_BAD_REQUEST)
-
-
-class FavouriteViewSet(mixins.CreateModelMixin,
-                       mixins.DestroyModelMixin,
-                       mixins.ListModelMixin,
-                       GenericViewSet):
-    """Избранное"""
-    queryset = Favourite.objects.all()
-    serializer_class = FavouriteSerializer
 
 
 class DocumentsViewSet(viewsets.ModelViewSet):
@@ -111,3 +102,8 @@ class FontViewSet(viewsets.ModelViewSet):
     """Шрифты"""
     serializer_class = FontSerializer
     queryset = Font.objects.all()
+
+
+class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
+    serializer_class = ColorSerializer
+    queryset = TemplateColor.objects.all()

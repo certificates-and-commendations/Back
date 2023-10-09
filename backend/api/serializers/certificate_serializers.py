@@ -1,6 +1,7 @@
-from api.utils import Base64ImageField, create_thumbnail
+from api.utils import Base64ImageField, create_thumbnail, dominant_color
 from django.db import transaction
-from documents.models import Document, Element, Favourite, Font, TextField
+from documents.models import (Document, DocumentColor, Element, Favourite,
+                              Font, TemplateColor, TextField)
 from fontTools import ttLib
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -124,12 +125,20 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
 
         for element in elements:
             Element.objects.create(document=document, **element)
+
+        colors = dominant_color(document.background)
+        for color in colors:
+            DocumentColor.objects.create(document=document, color=color)
         create_thumbnail(document)
 
     @transaction.atomic
     def create(self, validated_data):
-        texts = validated_data.pop('texts')
-        elements = validated_data.pop('elements')
+        texts = []
+        elements = []
+        if 'texts' in validated_data:
+            texts = validated_data.pop('texts')
+        if 'elements' in validated_data:
+            elements = validated_data.pop('elements')
         document = Document.objects.create(**validated_data)
         self.create_texts_elements(document, texts, elements)
         return document
@@ -138,7 +147,18 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.textfield_set.all().delete()
         instance.element_set.all().delete()
-        texts = validated_data.pop('texts')
-        elements = validated_data.pop('elements')
+        instance.documentcolor_set.all().delete()
+        texts = []
+        elements = []
+        if 'texts' in validated_data:
+            texts = validated_data.pop('texts')
+        if 'elements' in validated_data:
+            elements = validated_data.pop('elements')
         self.create_texts_elements(instance, texts, elements)
         return super().update(instance=instance, validated_data=validated_data)
+
+
+class ColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TemplateColor
+        fields = ('__all__')
