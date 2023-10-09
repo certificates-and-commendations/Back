@@ -173,8 +173,7 @@ class TemplateColor(models.Model):
         verbose_name_plural = 'Цвета фона'
 
     def __str__(self):
-        # return self.pk
-        return self.slug  # из-за ошибок админки пеменяла рк на слаг
+        return self.slug
 
 
 class Element(models.Model):

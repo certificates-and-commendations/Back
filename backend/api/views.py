@@ -60,6 +60,7 @@ def confirm_code(request):
 
 
 class DocumentsViewSet(viewsets.ModelViewSet):
+    """Документы"""
     queryset = Document.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DocumentFilter
@@ -98,6 +99,7 @@ class DocumentsViewSet(viewsets.ModelViewSet):
 
 
 class FontViewSet(viewsets.ModelViewSet):
+    """Шрифты"""
     serializer_class = FontSerializer
     queryset = Font.objects.all()
 

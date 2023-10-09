@@ -41,6 +41,11 @@ pip install -r requirements.txt
 python manage.py makemigrations
 python manage.py migrate
 ```
+- Для создания суперюзера из папки backend с файлом manage.py выполните команду:
+```
+python manage.py createsuperuser
+```
+
 - Для загрузки категорий из папки backend с файлом manage.py выполните команду:
 ```
 python manage.py add-category
@@ -67,3 +72,5 @@ SECRET_KEY=
 DEBUG=False
 ```
 ***IP адресс проекта: http://185.93.111.238/***
+
+certificates.acceleratorpracticum.ru
