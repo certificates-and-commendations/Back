@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
-from documents.models import Font, Document, TextField, TemplateColor
+from api.utils import dominant_color
+from documents.models import (Font, Document, DocumentColor, TextField,
+                              TemplateColor)
 from users.models import User
 
 
@@ -47,6 +49,26 @@ class Command(BaseCommand):
             except IntegrityError:
                 self.stdout.write(f'user {i} already exists')
 
+        # Colours
+        colours = (
+            ('#FFFFFF', 'white'),
+            ('#000000', 'black'),
+            ('#808080', 'grey'),
+            ('#FF0000', 'red'),
+            ('#FF8000', 'orange'),
+            ('#FFFF00', 'yellow'),
+            ('#00FF00', 'green'),
+            ('#00FFFF', 'cyan'),
+            ('#0000FF', 'blue'),
+            ('#800080', 'purple'),
+            ('#FFC0CB', 'pink'),
+            ('#A52A2A', 'brown'),
+        )
+        headers = ('hex', 'slug')
+
+        TemplateColor.objects.bulk_create(
+            TemplateColor(**dict(zip(headers, c))) for c in colours)
+
         # Docs
         font = Font.objects.get(id=1)
         texts_vertical = (
@@ -79,6 +101,11 @@ class Command(BaseCommand):
             )
             if not created:
                 continue
+            print(document.background)
+            colors = dominant_color(document.background)
+            print(colors)
+            for color in colors:
+                DocumentColor.objects.create(document=document, color=color)
             if document.background.width > document.background.height:
                 document.is_horizontal = True
                 document.save()
@@ -87,23 +114,3 @@ class Command(BaseCommand):
                           **dict(zip(headers, t)))
                 for t in format[document.is_horizontal]
             )
-
-        # Colours
-        colours = (
-            ('#FFFFFF', 'White', 255, 255, 255),
-            ('#000000', 'Black', 0, 0, 0),
-            ('#808080', 'Grey', 128, 128, 128),
-            ('#FF0000', 'Red', 255, 0, 0),
-            ('#FF8000', 'Orange', 255, 128, 0),
-            ('#FFFF00', 'Yellow', 255, 255, 0),
-            ('#00FF00', 'Green', 0, 255, 0),
-            ('#00FFFF', 'Cyan', 0, 255, 255),
-            ('#0000FF', 'Blue', 0, 0, 255),
-            ('#800080', 'Purple', 128, 0, 255),
-            ('#FFC0CB', 'Pink', 255, 192, 203),
-            ('#A52A2A', 'Brown', 1165, 42, 42),
-        )
-        headers = ('hex', 'slug', 'red', 'green', 'blue',)
-
-        TemplateColor.objects.bulk_create(
-            TemplateColor(**dict(zip(headers, c))) for c in colours)

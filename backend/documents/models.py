@@ -167,9 +167,6 @@ class TemplateColor(models.Model):
         verbose_name='Уникальный префикс',
         help_text='Введите уникальный префикс'
     )
-    red = models.SmallIntegerField(default=0)
-    green = models.SmallIntegerField(default=0)
-    blue = models.SmallIntegerField(default=0)
 
     class Meta:
         verbose_name = 'Цвет фона'

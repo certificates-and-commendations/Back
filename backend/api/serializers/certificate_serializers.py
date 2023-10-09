@@ -1,7 +1,7 @@
 from api.utils import Base64ImageField, create_thumbnail, dominant_color
 from django.db import transaction
 from documents.models import (Document, DocumentColor, Element, Favourite,
-                              Font, TemplateColor, TextField)
+                              Font, TextField)
 from fontTools import ttLib
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
@@ -125,9 +125,8 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
 
         for element in elements:
             Element.objects.create(document=document, **element)
+
         colors = dominant_color(document.background)
-        for c in colors:
-            print(c)
         for color in colors:
             DocumentColor.objects.create(document=document, color=color)
         create_thumbnail(document)
