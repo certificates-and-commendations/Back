@@ -6,7 +6,6 @@ class CustomUserAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'email',
-        'code',
         'is_active',
     )
     list_filter = ('is_active', )

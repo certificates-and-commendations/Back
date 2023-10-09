@@ -28,12 +28,6 @@ class MyUserSerializer(UserSerializer):
         )
 
 
-class ConfirmEmailSerializer(serializers.Serializer):
-    """Сериализатор для подтверждения почты по коду"""
-    email = serializers.CharField(required=True)
-    code = serializers.IntegerField(required=True)
-
-
 class RequestResetPasswordSerializer(serializers.Serializer):
     """Сериализатор для отправки кода на почту для сброса пароля."""
     email = serializers.EmailField(required=True)
@@ -46,19 +40,19 @@ class CodeValidationSerializer(serializers.Serializer):
 
 class ResetPasswordSerializer(serializers.Serializer):
     """Сериализатор для смены пароля."""
-    password1 = serializers.CharField(
+    new_password = serializers.CharField(
         min_length=8,
         write_only=True,
     )
-    password2 = serializers.CharField(
+    re_new_password = serializers.CharField(
         write_only=True,
     )
 
     def validate(self, data):
-        if data['password1'] != data['password2']:
+        if data['new_password'] != data['re_new_password']:
             raise serializers.ValidationError('Пароли не совпадают')
         try:
-            password_validation.validate_password(data['password1'])
+            password_validation.validate_password(data['new_password'])
         except password_validation.ValidationError as error:
-            raise serializers.ValidationError({'password1': error.messages})
+            raise serializers.ValidationError({'new_password': error.messages})
         return data

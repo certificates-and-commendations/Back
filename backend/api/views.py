@@ -17,15 +17,13 @@ from api.serializers.certificate_serializers import (
     DocumentDetailSerializer, DocumentDetailWriteSerializer,
     DocumentSerializer, FavouriteSerializer, FontSerializer)
 from api.serializers.user_serializers import (CodeValidationSerializer,
-                                              ConfirmEmailSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
                                               ResetPasswordSerializer)
 
 from .filters import DocumentFilter
 from .utils import create_pdf
-
-# from api.send_message.test_send_message import send_mail
+from django.core.mail import send_mail
 
 
 @swagger_auto_schema(method='POST', request_body=MyUserCreateSerializer)
@@ -39,32 +37,22 @@ def regist_user(request):
         user = User.objects.get(email=email)
         user.is_active = False
         # Отправка кода на почту
-        code = user.code
-        gmail_send_message(code=code, email=email, activation=True)
+        code = random.randint(1111, 9999)
+        request.session['confirm_code'] = code
+        request.session['confirm_email'] = email
+        # gmail_send_message(code=code, email=email, activation=True)
+        send_mail(
+                    'Тема письма',
+                    f'Ваш код для активации аккаунта {code}',
+                    'from@example.com',
+                    [user.email],
+                    fail_silently=False,
+                )
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(
         {'Ошибка': 'Проверьте введенный email и/или пароль'},
         status=status.HTTP_400_BAD_REQUEST
     )
-
-
-@swagger_auto_schema(method='POST', request_body=ConfirmEmailSerializer)
-@api_view(['POST'])
-def confirm_code(request):
-    """Подтверждение почты по коду"""
-    serializer = ConfirmEmailSerializer(data=request.data)
-    user = User.objects.get(email=request.data.get('email'))
-    code = request.data.get('code')
-    if serializer.is_valid():
-        if str(user.code) == str(code):
-            # Создание токена
-            token = Token.objects.create(user=user)
-            user.is_active = True
-            user.save()
-            return Response({'Token': str(token)}, status=status.HTTP_200_OK)
-
-    return Response({'Ошибка': 'Проверьте код'},
-                    status=status.HTTP_400_BAD_REQUEST)
 
 
 @swagger_auto_schema(method='POST',
@@ -82,8 +70,15 @@ def send_reset_code(request):
                 code = random.randint(1111, 9999)
                 request.session['recovery_code'] = code
                 request.session['reset_email'] = email
-                gmail_send_message(code=code, email=user.email,
-                                   activation=False)
+                # gmail_send_message(code=code, email=user.email,
+                #                    activation=False)
+                send_mail(
+                    'Тема письма',
+                    f'Ваш код для сброса пароля {code}',
+                    'from@example.com',
+                    [user.email],
+                    fail_silently=False,
+                )
                 request.session['recovery_email_sent'] = True
             except User.DoesNotExist:
                 return Response({'Ошибка': 'Пользователь с такой почтой не '
@@ -99,18 +94,22 @@ def send_reset_code(request):
                     status=status.HTTP_200_OK)
 
 
+
 @swagger_auto_schema(method='POST', request_body=CodeValidationSerializer)
 @api_view(['POST'])
-def reset_code(request):
-    """Ввод кода для перехода на форму сброса пароля."""
-    serializer = None
-    if (not request.session.get('recovery_email_sent')
-            or request.session.get('recovery_code_entered')):
-        return Response({'message': 'Сначала отправьте письмо с кодом '
-                        'восстановления'}, status=status.HTTP_400_BAD_REQUEST)
-    if 'code' in request.data:
-        serializer = CodeValidationSerializer(data=request.data)
-        if serializer.is_valid():
+def confirm_or_reset_code(request):
+    """Подтверждение почты по коду или ввод кода для смены пароля."""
+    serializer = CodeValidationSerializer(data=request.data)
+    email = request.data.get('email')
+    code = request.data.get('code')
+    if serializer.is_valid():
+        if 'recovery_code' in request.session:
+            # Это запрос на ввод кода для смены пароля
+            if (not request.session.get('recovery_email_sent')
+                    or request.session.get('recovery_code_entered')):
+                return Response({'message': 'Сначала отправьте письмо с кодом '
+                                'восстановления'},
+                                status=status.HTTP_400_BAD_REQUEST)
             code = serializer.validated_data['code']
             stored_code = request.session.get('recovery_code')
             if str(stored_code) == str(code):
@@ -119,9 +118,21 @@ def reset_code(request):
                                 status=status.HTTP_200_OK)
             return Response({'Ошибка': 'Неверный код для смены пароля.'},
                             status=status.HTTP_400_BAD_REQUEST)
-        return Response(serializer.errors,
+        else:
+            # Это запрос на подтверждение почты
+            confrim_code = request.session.get('confirm_code')
+            email = request.session.get('confirm_email')
+            if str(confrim_code) == str(code):
+                user = User.objects.get(email=email)
+                token = Token.objects.create(user=user)
+                user.is_active = True
+                user.save()
+                return Response({'Token': str(token)},
+                                status=status.HTTP_200_OK)
+        return Response({'Ошибка': 'Отсутствует email в данных запроса или '
+                        'неверный формат данных.'},
                         status=status.HTTP_400_BAD_REQUEST)
-    return Response({'Ошибка': 'Код не был передан.'},
+    return Response({'Ошибка': 'Проверьте код'},
                     status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -132,11 +143,11 @@ def reset_password(request):
     if not request.session.get('recovery_code_entered'):
         return Response({'message': 'Сначала введите код восстановления'},
                         status=status.HTTP_400_BAD_REQUEST)
-    if 'password1' in request.data and 'password2' in request.data:
+    if 'new_password' in request.data and 're_new_password' in request.data:
         serializer = ResetPasswordSerializer(data=request.data)
         email = request.session.get('reset_email')
         if serializer.is_valid():
-            password1 = serializer.validated_data['password1']
+            password1 = serializer.validated_data['new_password']
             user = User.objects.get(email=email)
             user.set_password(password1)
             user.save()
