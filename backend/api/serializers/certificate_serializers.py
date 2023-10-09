@@ -133,8 +133,12 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def create(self, validated_data):
-        texts = validated_data.pop('texts')
-        elements = validated_data.pop('elements')
+        texts = []
+        elements = []
+        if 'texts' in validated_data:
+            texts = validated_data.pop('texts')
+        if 'elements' in validated_data:
+            elements = validated_data.pop('elements')
         document = Document.objects.create(**validated_data)
         self.create_texts_elements(document, texts, elements)
         return document
@@ -143,9 +147,13 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.textfield_set.all().delete()
         instance.element_set.all().delete()
-        instance.docuemntcolor_set.all().delete()
-        texts = validated_data.pop('texts')
-        elements = validated_data.pop('elements')
+        instance.documentcolor_set.all().delete()
+        texts = []
+        elements = []
+        if 'texts' in validated_data:
+            texts = validated_data.pop('texts')
+        if 'elements' in validated_data:
+            elements = validated_data.pop('elements')
         self.create_texts_elements(instance, texts, elements)
         return super().update(instance=instance, validated_data=validated_data)
 
