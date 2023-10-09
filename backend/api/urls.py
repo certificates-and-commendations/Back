@@ -1,5 +1,5 @@
 from djoser.views import UserViewSet
-from api.views import (ColorViewSet, DocumentsViewSet, FontViewSet, 
+from api.views import (ColorViewSet, DocumentsViewSet, FontViewSet,
                        confirm_code, regist_user)
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
