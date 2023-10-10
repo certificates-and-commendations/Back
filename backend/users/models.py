@@ -1,5 +1,3 @@
-import random
-
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 
@@ -39,10 +37,6 @@ class MyUserManager(BaseUserManager):
         return self._create_user(email, password, **extra_fields)
 
 
-def activation_code():
-    return random.randint(1111, 9999)
-
-
 class User(AbstractUser):
     username = None
     email = models.EmailField(
@@ -51,7 +45,6 @@ class User(AbstractUser):
         blank=False,
         unique=True
     )
-    code = models.PositiveIntegerField('Код', default=activation_code)
 
     objects = MyUserManager()
 

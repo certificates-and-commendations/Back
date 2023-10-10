@@ -1,8 +1,10 @@
-from djoser.views import UserViewSet
-from api.views import (ColorViewSet, DocumentsViewSet, FontViewSet,
-                       confirm_code, regist_user)
 from django.urls import include, path
+from djoser.views import UserViewSet
 from rest_framework.routers import DefaultRouter
+
+from api.views import (ColorViewSet, DocumentsViewSet, FontViewSet,
+                       regist_user, reset_password, send_reset_code,
+                       confirm_or_reset_code)
 
 app_name = 'api'
 router = DefaultRouter()
@@ -33,8 +35,11 @@ selected_user_routes = list(filter(is_route_selected, user_router.urls))
 
 urlpatterns = [
     path('', include(router.urls)),
-    # path('', include('djoser.urls')),
+    # path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
+    path('auth/send_reset_code/', send_reset_code),
+    path('auth/reset_password/', reset_password),
     path('auth/regist/', regist_user),  # регистрация пользователя
-    path('auth/confirm/', confirm_code),  # подтверждение почты
+    path('auth/confirm/', confirm_or_reset_code),  # подтверждение почты или
+                                                   # сброс пароля
 ] + selected_user_routes
