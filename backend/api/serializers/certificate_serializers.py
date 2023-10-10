@@ -6,8 +6,6 @@ from fontTools import ttLib
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from api.utils import Base64ImageField, create_thumbnail
-
 
 class FavouriteSerializer(serializers.ModelSerializer):
     """Сериализатор избранные сертификаты"""

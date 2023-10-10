@@ -6,7 +6,6 @@ from django.core.files import File
 from django.core.files.base import ContentFile
 from documents.models import Font
 from PIL import Image, ImageDraw, ImageFont
-from reportlab.lib.styles import ParagraphStyle
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.pdfmetrics import stringWidth

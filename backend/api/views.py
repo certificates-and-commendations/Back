@@ -2,7 +2,6 @@ import random
 
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from documents.models import Document, Favourite, Font
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
@@ -102,21 +101,20 @@ def confirm_or_reset_code(request):
                                 status=status.HTTP_200_OK)
             return Response({'Ошибка': 'Неверный код для смены пароля.'},
                             status=status.HTTP_400_BAD_REQUEST)
-        else:
-            # Это запрос на подтверждение почты
-            confrim_code = request.session.get('confirm_code')
-            email = request.session.get('confirm_email')
-            if str(confrim_code) == str(code):
-                user = User.objects.get(email=email)
-                token = Token.objects.create(user=user)
-                user.is_active = True
-                user.save()
-                return Response({'Token': str(token)},
-                                status=status.HTTP_200_OK)
-        return Response({'Ошибка': 'Отсутствует email в данных запроса или '
-                        'неверный формат данных.'},
+        # Это запрос на подтверждение почты
+        confrim_code = request.session.get('confirm_code')
+        email = request.session.get('confirm_email')
+        if str(confrim_code) == str(code):
+            user = User.objects.get(email=email)
+            token = Token.objects.create(user=user)
+            user.is_active = True
+            user.save()
+            return Response({'Token': str(token)},
+                            status=status.HTTP_200_OK)
+        return Response({'Ошибка': 'Неверный код для подтверждения почты.'},
                         status=status.HTTP_400_BAD_REQUEST)
-    return Response({'Ошибка': 'Проверьте код'},
+    return Response({'Ошибка': 'Отсутствует email в данных запроса или '
+                    'неверный формат данных.'},
                     status=status.HTTP_400_BAD_REQUEST)
 
 
