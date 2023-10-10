@@ -23,7 +23,6 @@ from api.serializers.user_serializers import (CodeValidationSerializer,
 
 from .filters import DocumentFilter
 from .utils import create_pdf
-from django.core.mail import send_mail
 
 
 @swagger_auto_schema(method='POST', request_body=MyUserCreateSerializer)
@@ -40,14 +39,7 @@ def regist_user(request):
         code = random.randint(1111, 9999)
         request.session['confirm_code'] = code
         request.session['confirm_email'] = email
-        # gmail_send_message(code=code, email=email, activation=True)
-        send_mail(
-                    'Тема письма',
-                    f'Ваш код для активации аккаунта {code}',
-                    'from@example.com',
-                    [user.email],
-                    fail_silently=False,
-                )
+        gmail_send_message(code=code, email=email, activation=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(
         {'Ошибка': 'Проверьте введенный email и/или пароль'},
@@ -70,15 +62,8 @@ def send_reset_code(request):
                 code = random.randint(1111, 9999)
                 request.session['recovery_code'] = code
                 request.session['reset_email'] = email
-                # gmail_send_message(code=code, email=user.email,
-                #                    activation=False)
-                send_mail(
-                    'Тема письма',
-                    f'Ваш код для сброса пароля {code}',
-                    'from@example.com',
-                    [user.email],
-                    fail_silently=False,
-                )
+                gmail_send_message(code=code, email=user.email,
+                                   activation=False)
                 request.session['recovery_email_sent'] = True
             except User.DoesNotExist:
                 return Response({'Ошибка': 'Пользователь с такой почтой не '
@@ -92,7 +77,6 @@ def send_reset_code(request):
                         status=status.HTTP_400_BAD_REQUEST)
     return Response({'message': 'Код подтверждения отправлен на вашу почту.'},
                     status=status.HTTP_200_OK)
-
 
 
 @swagger_auto_schema(method='POST', request_body=CodeValidationSerializer)

@@ -3,7 +3,7 @@ from djoser.views import UserViewSet
 from rest_framework.routers import DefaultRouter
 
 from api.views import (DocumentsViewSet, FavouriteViewSet, FontViewSet,
-                       regist_user,  reset_password, send_reset_code,
+                       regist_user, reset_password, send_reset_code,
                        confirm_or_reset_code)
 
 app_name = 'api'
