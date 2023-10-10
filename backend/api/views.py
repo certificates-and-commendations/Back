@@ -14,13 +14,13 @@ from users.models import User
 
 from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import (
-    DocumentDetailSerializer, DocumentDetailWriteSerializer,
+    ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
     DocumentSerializer, FavouriteSerializer, FontSerializer)
 from api.serializers.user_serializers import (CodeValidationSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
                                               ResetPasswordSerializer)
-
+from documents.models import Document, Favourite, Font, TemplateColor
 from .filters import DocumentFilter
 from .utils import create_pdf
 
@@ -146,15 +146,8 @@ def reset_password(request):
                     status=status.HTTP_400_BAD_REQUEST)
 
 
-class FavouriteViewSet(mixins.CreateModelMixin,
-                       mixins.DestroyModelMixin,
-                       mixins.ListModelMixin,
-                       GenericViewSet):
-    queryset = Favourite.objects.all()
-    serializer_class = FavouriteSerializer
-
-
 class DocumentsViewSet(viewsets.ModelViewSet):
+    """Документы"""
     queryset = Document.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DocumentFilter
@@ -162,7 +155,7 @@ class DocumentsViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return DocumentDetailSerializer
-        if self.action == 'create':
+        if self.action in ('create', 'update'):
             return DocumentDetailWriteSerializer
         if self.action == 'favourite':
             return FavouriteSerializer
@@ -193,5 +186,11 @@ class DocumentsViewSet(viewsets.ModelViewSet):
 
 
 class FontViewSet(viewsets.ModelViewSet):
+    """Шрифты"""
     serializer_class = FontSerializer
     queryset = Font.objects.all()
+
+
+class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
+    serializer_class = ColorSerializer
+    queryset = TemplateColor.objects.all()

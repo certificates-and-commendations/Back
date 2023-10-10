@@ -14,6 +14,12 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import Paragraph
 from rest_framework import serializers
+from reportlab.lib.styles import ParagraphStyle
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.neighbors import KDTree
+from documents.models import TemplateColor
+from data.colors import COLORS
 
 
 class Base64ImageField(serializers.ImageField):
@@ -114,3 +120,21 @@ def create_pdf(document):
     canvas.save()
     buffer.seek(0)
     return buffer
+
+
+def dominant_color(img, n=3):
+    im = Image.open(img)
+    im = im.resize((100, 100))
+    image = np.asarray(im)
+    pixels = image.reshape(-1, 3)
+    kmeans = KMeans(n_clusters=n, n_init='auto')
+    kmeans.fit(pixels)
+    colors = kmeans.cluster_centers_
+    colors = colors.astype(int)
+    x = np.asarray(list(COLORS.keys()))
+    tree = KDTree(x, leaf_size=2)
+    color_tags = set()
+    for c in colors:
+        _, ind = tree.query(c.reshape(-1, 3), k=1)
+        color_tags.add(COLORS[tuple(x[ind[0, 0]])])
+    return TemplateColor.objects.filter(slug__in=color_tags)

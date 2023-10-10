@@ -3,6 +3,7 @@ from django.utils.safestring import mark_safe
 from .models import (Category, Document, Element,
                      Font, Favourite, TemplateColor,
                      TextField)
+from api.utils import create_thumbnail
 
 
 class FavouriteInline(admin.TabularInline):
@@ -13,6 +14,7 @@ class FavouriteInline(admin.TabularInline):
 
 class TextFieldInline(admin.TabularInline):
     model = TextField
+    fk_name = "document"
     min_num = 0
     extra = 0
 
@@ -47,7 +49,16 @@ class DocumentAdmin(admin.ModelAdmin):
     list_filter = ('category', 'is_horizontal', )
     search_fields = ('title', 'user__email', )
     ordering = ('time_create', )
-    readonly_fields = ['thumbnail']
+    readonly_fields = ('thumbnail',)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        document = form.instance
+        create_thumbnail(document)
+        document.save()
 
 
 admin.site.register(Document, DocumentAdmin)

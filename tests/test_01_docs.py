@@ -81,9 +81,9 @@ class TestDocumentsModels:
         assert document.user.email == user.email
         assert document.category.name == 'diplomas'
 
-    def test_text_field_creation(self, text_field):
+    def test_text_field_creation(self, text_field, font):
         assert text_field.text == 'Test Text'
-        assert text_field.font == 'Arial'
+        assert text_field.font == font
 
     def test_category_creation(self, category):
         assert category.name == 'diplomas'
@@ -93,7 +93,7 @@ class TestDocumentsModels:
         assert font.font == 'Arial'
         assert font.is_bold
         assert not font.is_italic
-        assert font.font_file == 'arial.ttf'
+        assert font.font_file == 'fonts/Arial.ttf'
 
     def test_element_creation(self, element):
         assert element.coordinate_y == 20
