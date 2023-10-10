@@ -4,6 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action, api_view
+from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -17,7 +18,7 @@ from api.serializers.user_serializers import (ConfirmEmailSerializer,
 from documents.models import Document, Favourite, Font, TemplateColor
 from .filters import DocumentFilter
 from users.models import User
-from .utils import create_pdf
+from .utils import create_pdf, parse_csv
 
 
 @swagger_auto_schema(method='POST', request_body=MyUserCreateSerializer)
@@ -78,10 +79,13 @@ class DocumentsViewSet(viewsets.ModelViewSet):
         user = User.objects.get(id=1)
         serializer.save(user=user)
 
-    @action(methods=['GET',], detail=True)
+    @action(methods=['GET',], detail=True,
+            parser_classes=(FileUploadParser, MultiPartParser))
     def download(self, request, pk):
         document = Document.objects.get(id=pk)
-        b = create_pdf(document)
+        file_obj = request.data['file']
+        names = parse_csv(file_obj)
+        b = create_pdf(document, names, 'Имя Фамилия')
         return FileResponse(b, as_attachment=True, filename="hello.pdf")
 
     @action(methods=['DELETE', 'POST'], detail=True,

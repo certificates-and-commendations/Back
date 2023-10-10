@@ -1,4 +1,5 @@
 import base64
+import csv
 import os
 from io import BytesIO
 
@@ -19,6 +20,7 @@ from sklearn.cluster import KMeans
 from sklearn.neighbors import KDTree
 from documents.models import TemplateColor
 from data.colors import COLORS
+import codecs
 
 
 class Base64ImageField(serializers.ImageField):
@@ -86,36 +88,68 @@ def create_thumbnail(document):
     document.save()
 
 
-def create_pdf(document):
+def draw_text(canvas, text, content, width, height, doc_height):
+    font = Font.objects.get(id=text.font_id)
+    pdfmetrics.registerFont(TTFont(font.font, font.font_file.path))
+    face = pdfmetrics.getFont(font.font).face
+    string_height = (face.ascent - face.descent) / 1000 * text.font_size
+    style = ParagraphStyle(
+        name='custom',
+        fontName=font.font,
+        fontSize=text.font_size,
+        textColor=text.font_color)
+    decoration = {
+        'underline': f'<u>{content}</u>',
+        'strikethrough': f'<strike>{content}</strike>',
+        'none': f'{content}',
+    }
+    paragraph = Paragraph(decoration[text.text_decoration], style)
+    string_width = stringWidth(content, font.font, text.font_size)
+    paragraph.wrapOn(canvas, string_width, string_height)
+    paragraph.drawOn(canvas, text.coordinate_x + width,
+                     doc_height - text.coordinate_y - height)
+
+
+def parse_csv(file):
+    if file is None:
+        return []
+    names = []
+    data = csv.reader(codecs.iterdecode(file, 'utf-8'), delimiter=';')
+    for row in data:
+        names.append(*row)
+    print(names)
+    return names
+
+
+def create_pdf(document, data=[], delimeter='%'):
     buffer = BytesIO()
     background = image_draw(document.background, document.element_set.all())
     doc_width, doc_height = background.size
     canvas = Canvas(buffer, pagesize=background.size)
     width = doc_width / 2
     height = doc_height / 2
+    canvas.beginForm('Page')
     canvas.drawImage(ImageReader(background), 0, 0)
-    texts = document.textfield_set.all()
+    texts = document.textfield_set.exclude(text__icontains=delimeter)
     for text in texts:
-        font = Font.objects.get(id=text.font_id)
-        pdfmetrics.registerFont(TTFont(font.font, font.font_file.path))
-        face = pdfmetrics.getFont(font.font).face
-        string_height = (face.ascent - face.descent) / 1000 * text.font_size
-        style = ParagraphStyle(
-            name='custom',
-            fontName=font.font,
-            fontSize=text.font_size,
-            textColor=text.font_color)
-        decoration = {
-            'underline': f'<u>{text.text}</u>',
-            'strikethrough': f'<strike>{text.text}</strike>',
-            'none': f'{text.text}',
-        }
-        paragraph = Paragraph(decoration[text.text_decoration], style)
-        string_width = stringWidth(text.text, font.font, text.font_size)
-        paragraph.wrapOn(canvas, string_width, string_height)
-        paragraph.drawOn(canvas, text.coordinate_x + width,
-                         doc_height - text.coordinate_y - height)
-    canvas.showPage()
+        draw_text(canvas, text, text.text, width, height, doc_height)
+    canvas.endForm()
+    text_with_delimeter = document.textfield_set.filter(
+        text__icontains=delimeter)
+    if text_with_delimeter.count() > 0:
+        if len(data) == 0:
+            canvas.doForm('Page')
+            draw_text(canvas, text_with_delimeter[0],
+                      text_with_delimeter[0].text, width, height, doc_height)
+        else:
+            for d in data:
+                canvas.doForm('Page')
+                draw_text(canvas, text_with_delimeter[0], d, width,
+                          height, doc_height)
+                canvas.showPage()
+    else:
+        canvas.doForm('Page')
+        canvas.showPage()
     canvas.save()
     buffer.seek(0)
     return buffer

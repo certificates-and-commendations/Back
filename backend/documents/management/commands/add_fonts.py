@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 from api.utils import dominant_color
-from documents.models import (Font, Document, DocumentColor, TextField,
+from documents.models import (Category, Font, Document, TextField,
                               TemplateColor)
 from users.models import User
 
@@ -92,20 +92,20 @@ class Command(BaseCommand):
             False: texts_vertical
         }
         user = User.objects.get(id=1)
+        category = Category.objects.get(name='Грамоты')
         for i in range(10):
             document, created = Document.objects.get_or_create(
                 title=f'Шаблон {i+1}',
                 user=user,
+                category=category,
                 background=f'backgrounds/template0{i}.jpg',
                 thumbnail=f'thumbnails/template0{i}.jpg'
             )
             if not created:
                 continue
-            print(document.background)
             colors = dominant_color(document.background)
-            print(colors)
             for color in colors:
-                DocumentColor.objects.create(document=document, color=color)
+                document.color.add(color)
             if document.background.width > document.background.height:
                 document.is_horizontal = True
                 document.save()
