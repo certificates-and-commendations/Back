@@ -90,9 +90,9 @@ class DocumentsViewSet(viewsets.ModelViewSet):
         return FileResponse(b, as_attachment=True,
                             filename=f'{document.title}.pdf')
 
-    @action(methods=['POST',], detail=True,
+    @action(methods=['POST',], detail=False,
             parser_classes=(FileUploadParser, MultiPartParser))
-    def upload(self, request, pk):
+    def upload(self, request):
         file_obj = request.data.get('file', None)
         names = parse_csv(file_obj, True)
         return Response(data=names, status=status.HTTP_201_CREATED)
