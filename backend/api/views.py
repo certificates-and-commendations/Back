@@ -1,4 +1,5 @@
 from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
@@ -82,11 +83,19 @@ class DocumentsViewSet(viewsets.ModelViewSet):
     @action(methods=['GET',], detail=True,
             parser_classes=(FileUploadParser, MultiPartParser))
     def download(self, request, pk):
-        document = Document.objects.get(id=pk)
-        file_obj = request.data['file']
+        document = get_object_or_404(Document, id=pk)
+        file_obj = request.data.get('file', None)
         names = parse_csv(file_obj)
-        b = create_pdf(document, names, 'Имя Фамилия')
-        return FileResponse(b, as_attachment=True, filename="hello.pdf")
+        b = create_pdf(document, names)
+        return FileResponse(b, as_attachment=True,
+                            filename=f'{document.title}.pdf')
+
+    @action(methods=['POST',], detail=True,
+            parser_classes=(FileUploadParser, MultiPartParser))
+    def upload(self, request, pk):
+        file_obj = request.data.get('file', None)
+        names = parse_csv(file_obj, True)
+        return Response(data=names, status=status.HTTP_201_CREATED)
 
     @action(methods=['DELETE', 'POST'], detail=True,
             permission_classes=[IsAuthenticated])
@@ -109,5 +118,6 @@ class FontViewSet(viewsets.ModelViewSet):
 
 
 class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
+    """Цвета"""
     serializer_class = ColorSerializer
     queryset = TemplateColor.objects.all()

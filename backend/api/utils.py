@@ -43,7 +43,9 @@ def image_draw(background, elements):
     height //= 2
     for element in elements:
         with Image.open(element.image) as foreground:
+            foreground = foreground.resize((100, 100))
             foreground = foreground.convert('RGBA')
+
             im.paste(foreground, (element.coordinate_x + int(width),
                                   element.coordinate_y + int(height)),
                      foreground)
@@ -110,14 +112,17 @@ def draw_text(canvas, text, content, width, height, doc_height):
                      doc_height - text.coordinate_y - height)
 
 
-def parse_csv(file):
+def parse_csv(file, enum=False):
     if file is None:
         return []
     names = []
+    nums = []
     data = csv.reader(codecs.iterdecode(file, 'utf-8'), delimiter=';')
-    for row in data:
+    for i, row in enumerate(data):
         names.append(*row)
-    print(names)
+        nums.append(i)
+    if enum:
+        return dict(zip(nums, names))
     return names
 
 
