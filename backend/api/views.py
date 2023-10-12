@@ -13,8 +13,13 @@ from users.models import User
 
 from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import (
-    ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
-    DocumentSerializer, FavouriteSerializer, FontSerializer, ShortDocumentSerializer)
+    ColorSerializer,
+    DocumentDetailSerializer,
+    DocumentDetailWriteSerializer,
+    DocumentSerializer,
+    FavouriteSerializer,
+    FontSerializer,
+    ShortDocumentSerializer)
 from api.serializers.user_serializers import (CodeValidationSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
