@@ -25,12 +25,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
     'corsheaders',
     'djoser',
     'drf_yasg',
+
     'users.apps.UsersConfig',
     'api.apps.ApiConfig',
     'documents.apps.DocsConfig',
@@ -47,6 +49,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# Настройки сессии и куки
+SESSION_COOKIE_AGE = 3600  # 1 час
 
 
 REST_FRAMEWORK = {
