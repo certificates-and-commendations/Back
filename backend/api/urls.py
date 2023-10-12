@@ -4,13 +4,14 @@ from rest_framework.routers import DefaultRouter
 
 from api.views import (ColorViewSet, DocumentsViewSet, FontViewSet,
                        regist_user, reset_password, send_reset_code,
-                       confirm_or_reset_code)
+                       confirm_or_reset_code, UserProfileDocumentViewSet)
 
 app_name = 'api'
 router = DefaultRouter()
 router.register("colors", ColorViewSet)
 router.register('documents', DocumentsViewSet)
 router.register('font', FontViewSet)
+router.register(r'profile', UserProfileDocumentViewSet, basename='profile')
 
 user_router = DefaultRouter()
 user_router.register("users", UserViewSet, basename="users")

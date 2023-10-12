@@ -192,3 +192,27 @@ class FontViewSet(viewsets.ModelViewSet):
 class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
     serializer_class = ColorSerializer
     queryset = TemplateColor.objects.all()
+
+
+class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = DocumentSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        show_favourites = self.request.query_params.get('favourite', False)
+
+        if show_favourites:
+            return Document.objects.filter(favourite__user=user)
+        else:
+            return Document.objects.filter(user=user)
+
+    @action(detail=False, methods=['get'])
+    def profile(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
