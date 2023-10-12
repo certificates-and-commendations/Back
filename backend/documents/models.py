@@ -46,10 +46,9 @@ class Document(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    color = models.ForeignKey(
+    color = models.ManyToManyField(
         'TemplateColor',
-        on_delete=models.SET_NULL,
-        null=True
+        related_name='colors',
     )
     background = models.ImageField(
         'BackgroundImage',
@@ -233,8 +232,3 @@ class Font(models.Model):
 
     def __str__(self):
         return self.font
-
-
-class DocumentColor(models.Model):
-    document = models.ForeignKey(Document, on_delete=models.CASCADE)
-    color = models.ForeignKey(TemplateColor, on_delete=models.DO_NOTHING)

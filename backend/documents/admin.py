@@ -43,7 +43,6 @@ class DocumentAdmin(admin.ModelAdmin):
         'user',
         'category',
         'background',
-        'color',
         'is_horizontal',
     )
     list_filter = ('category', 'is_horizontal', )

@@ -1,6 +1,6 @@
 from api.utils import Base64ImageField, create_thumbnail, dominant_color
 from django.db import transaction
-from documents.models import (Document, DocumentColor, Element, Favourite,
+from documents.models import (Document, Element, Favourite,
                               Font, TemplateColor, TextField)
 from fontTools import ttLib
 from rest_framework import serializers
@@ -128,7 +128,7 @@ class DocumentDetailWriteSerializer(serializers.ModelSerializer):
 
         colors = dominant_color(document.background)
         for color in colors:
-            DocumentColor.objects.create(document=document, color=color)
+            document.color.add(color)
         create_thumbnail(document)
 
     @transaction.atomic

@@ -1,11 +1,13 @@
 import random
 
 from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action, api_view
+from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -21,7 +23,7 @@ from api.serializers.user_serializers import (CodeValidationSerializer,
                                               ResetPasswordSerializer)
 from documents.models import Document, Favourite, Font, TemplateColor
 from .filters import DocumentFilter
-from .utils import create_pdf
+from .utils import create_pdf, parse_csv
 
 
 @swagger_auto_schema(method='POST', request_body=MyUserCreateSerializer)
@@ -163,11 +165,22 @@ class DocumentsViewSet(viewsets.ModelViewSet):
         user = User.objects.get(id=1)
         serializer.save(user=user)
 
-    @action(methods=['GET',], detail=True)
+    @action(methods=['GET',], detail=True,
+            parser_classes=(FileUploadParser, MultiPartParser))
     def download(self, request, pk):
-        document = Document.objects.get(id=pk)
-        b = create_pdf(document)
-        return FileResponse(b, as_attachment=True, filename="hello.pdf")
+        document = get_object_or_404(Document, id=pk)
+        file_obj = request.data.get('file', None)
+        names = parse_csv(file_obj)
+        b = create_pdf(document, names)
+        return FileResponse(b, as_attachment=True,
+                            filename=f'{document.title}.pdf')
+
+    @action(methods=['POST',], detail=False,
+            parser_classes=(FileUploadParser, MultiPartParser))
+    def upload(self, request):
+        file_obj = request.data.get('file', None)
+        names = parse_csv(file_obj, True)
+        return Response(data=names, status=status.HTTP_201_CREATED)
 
     @action(methods=['DELETE', 'POST'], detail=True,
             permission_classes=[IsAuthenticated])
@@ -190,5 +203,6 @@ class FontViewSet(viewsets.ModelViewSet):
 
 
 class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
+    """Цвета"""
     serializer_class = ColorSerializer
     queryset = TemplateColor.objects.all()
