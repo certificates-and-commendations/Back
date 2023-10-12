@@ -11,7 +11,7 @@ router = DefaultRouter()
 router.register("colors", ColorViewSet)
 router.register('documents', DocumentsViewSet)
 router.register('font', FontViewSet)
-router.register(r'profile', UserProfileDocumentViewSet, basename='profile')
+router.register('profile', UserProfileDocumentViewSet, basename='profile')
 
 user_router = DefaultRouter()
 user_router.register("users", UserViewSet, basename="users")

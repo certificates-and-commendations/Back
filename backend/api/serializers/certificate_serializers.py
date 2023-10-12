@@ -73,20 +73,31 @@ class ElementSerializer(serializers.ModelSerializer):
         fields = ('coordinate_y', 'coordinate_x', 'image')
 
 
-class DocumentSerializer(serializers.ModelSerializer):
-    thumbnail = Base64ImageField()
-    is_favourite = serializers.SerializerMethodField()
-
-    def get_is_favourite(self, obj):
+class IsFavouriteField(serializers.SerializerMethodField):
+    def to_representation(self, obj):
         user = self.context['request'].user
         if user.is_anonymous:
             return False
         return user.favourite.filter(document=obj.id).exists()
 
+
+class DocumentSerializer(serializers.ModelSerializer):
+    thumbnail = Base64ImageField()
+    is_favourite = IsFavouriteField()
+
     class Meta:
         model = Document
         fields = ('id', 'title', 'thumbnail', 'category', 'color',
                   'is_horizontal', 'is_favourite')
+
+
+class ShortDocumentSerializer(serializers.ModelSerializer):
+    thumbnail = Base64ImageField()
+    is_favourite = IsFavouriteField()
+
+    class Meta:
+        model = Document
+        fields = ('id', 'thumbnail', 'is_favourite')
 
 
 class DocumentDetailSerializer(serializers.ModelSerializer):

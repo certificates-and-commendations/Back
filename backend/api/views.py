@@ -14,7 +14,7 @@ from users.models import User
 from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import (
     ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
-    DocumentSerializer, FavouriteSerializer, FontSerializer)
+    DocumentSerializer, FavouriteSerializer, FontSerializer, ShortDocumentSerializer)
 from api.serializers.user_serializers import (CodeValidationSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
@@ -195,14 +195,10 @@ class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
 
 
 class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = DocumentSerializer
+    serializer_class = ShortDocumentSerializer
 
     def get_queryset(self):
         user = self.request.user
-        show_favourites = self.request.query_params.get('favourite', False)
-
-        if show_favourites:
-            return Document.objects.filter(favourite__user=user)
         return Document.objects.filter(user=user)
 
     @action(detail=False, methods=['get'])
