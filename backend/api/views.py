@@ -203,8 +203,7 @@ class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
 
         if show_favourites:
             return Document.objects.filter(favourite__user=user)
-        else:
-            return Document.objects.filter(user=user)
+        return Document.objects.filter(user=user)
 
     @action(detail=False, methods=['get'])
     def profile(self, request, *args, **kwargs):
