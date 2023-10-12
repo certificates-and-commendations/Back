@@ -15,8 +15,13 @@ from users.models import User
 
 from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import (
-    ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
-    DocumentSerializer, FavouriteSerializer, FontSerializer)
+    ColorSerializer,
+    DocumentDetailSerializer,
+    DocumentDetailWriteSerializer,
+    DocumentSerializer,
+    FavouriteSerializer,
+    FontSerializer,
+    ShortDocumentSerializer)
 from api.serializers.user_serializers import (CodeValidationSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
@@ -206,3 +211,22 @@ class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
     """Цвета"""
     serializer_class = ColorSerializer
     queryset = TemplateColor.objects.all()
+
+
+class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ShortDocumentSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Document.objects.filter(user=user)
+
+    @action(detail=False, methods=['get'])
+    def profile(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
