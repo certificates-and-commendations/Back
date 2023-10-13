@@ -16,14 +16,14 @@ from rest_framework.viewsets import GenericViewSet
 from documents.models import Document, Favourite, Font, TemplateColor
 from users.models import User
 
-from .serializers.certificate_serializers import (
+from api.serializers.certificate_serializers import (
     ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
     DocumentSerializer, FavouriteSerializer, FontSerializer,
     ShortDocumentSerializer)
-from .serializers.user_serializers import (CodeValidationSerializer,
-                                           MyUserCreateSerializer,
-                                           RequestResetPasswordSerializer,
-                                           ResetPasswordSerializer)
+from api.serializers.user_serializers import (CodeValidationSerializer,
+                                              MyUserCreateSerializer,
+                                              RequestResetPasswordSerializer,
+                                              ResetPasswordSerializer)
 from .filters import DocumentFilter
 from .send_message.send_message import gmail_send_message
 from .utils import create_pdf, parse_csv
