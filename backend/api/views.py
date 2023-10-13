@@ -12,7 +12,6 @@ from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-
 from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import (
     ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
@@ -212,6 +211,7 @@ class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
 
 class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ShortDocumentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
