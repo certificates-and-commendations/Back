@@ -24,6 +24,7 @@ from api.serializers.user_serializers import (CodeValidationSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
                                               ResetPasswordSerializer)
+from api.permissions import IsCreatorOrReadOnly
 from .filters import DocumentFilter
 from .send_message.send_message import gmail_send_message
 from .utils import create_pdf, parse_csv
@@ -34,21 +35,17 @@ from .utils import create_pdf, parse_csv
 def regist_user(request):
     """Регистрация пользователей"""
     serializer = MyUserCreateSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save()
-        email = serializer.data.get('email')
-        user = User.objects.get(email=email)
-        user.is_active = False
-        # Отправка кода на почту
-        code = random.randint(1111, 9999)
-        request.session['confirm_code'] = code
-        request.session['confirm_email'] = email
-        gmail_send_message(code=code, email=email, activation=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response(
-        {'Ошибка': 'Проверьте введенный email и/или пароль'},
-        status=status.HTTP_400_BAD_REQUEST
-    )
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    email = serializer.data.get('email')
+    user = User.objects.get(email=email)
+    user.is_active = False
+    # Отправка кода на почту
+    code = random.randint(1111, 9999)
+    request.session['confirm_code'] = code
+    request.session['confirm_email'] = email
+    gmail_send_message(code=code, email=email, activation=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(method='POST',
@@ -154,9 +151,18 @@ class DocumentsViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DocumentFilter
+    permission_classes = (IsCreatorOrReadOnly,)
+
+    def get_queryset(self):
+        user = self.request.user
+        if self.action in ('list', 'retrieve', 'download'):
+            if user.is_anonymous:
+                return self.queryset.filter(is_public=True)
+            return self.queryset.filter(Q(is_public=True) | Q(user=user))
+        return self.queryset
 
     def get_serializer_class(self):
-        if self.action == 'retrieve':
+        if self.action in ('retrieve', 'download'):
             return DocumentDetailSerializer
         if self.action in ('create', 'update'):
             return DocumentDetailWriteSerializer
@@ -165,18 +171,22 @@ class DocumentsViewSet(viewsets.ModelViewSet):
         return DocumentSerializer
 
     def perform_create(self, serializer):
-        user = User.objects.get(id=1)
+        user = get_object_or_404(self.request.user)
         serializer.save(user=user)
 
     @action(methods=['GET',], detail=True,
-            parser_classes=(FileUploadParser, MultiPartParser))
+            parser_classes=(FileUploadParser, MultiPartParser),
+            permission_classes=[IsAuthenticated])
     def download(self, request, pk):
-        document = get_object_or_404(Document, id=pk)
-        file_obj = request.data.get('file', None)
-        names = parse_csv(file_obj)
-        b = create_pdf(document, names)
-        return FileResponse(b, as_attachment=True,
-                            filename=f'{document.title}.pdf')
+        if self.get_queryset().filter(id=pk).exists():
+            document = Document.objects.get(id=pk)
+            file_obj = request.data.get('file', None)
+            names = parse_csv(file_obj)
+            b = create_pdf(document, names)
+            return FileResponse(b, as_attachment=True,
+                                filename=f'{document.title}.pdf')
+        return Response(data={"detail": "Страница не найдена."},
+                        status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['POST',], detail=False,
             parser_classes=(FileUploadParser, MultiPartParser))

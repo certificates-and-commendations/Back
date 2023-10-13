@@ -56,6 +56,7 @@ class Document(models.Model):
         blank=True
     )
     is_horizontal = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('title',)

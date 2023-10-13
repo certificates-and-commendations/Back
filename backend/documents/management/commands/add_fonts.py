@@ -99,7 +99,8 @@ class Command(BaseCommand):
                 user=user,
                 category=category,
                 background=f'backgrounds/template0{i}.jpg',
-                thumbnail=f'thumbnails/template0{i}.jpg'
+                thumbnail=f'thumbnails/template0{i}.jpg',
+                is_public=True
             )
             if not created:
                 continue
