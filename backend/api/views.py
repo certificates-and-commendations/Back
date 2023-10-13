@@ -1,5 +1,6 @@
 import random
 
+from django.db.models import Q
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -11,22 +12,18 @@ from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
-from users.models import User
 
 from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import (
-    ColorSerializer,
-    DocumentDetailSerializer,
-    DocumentDetailWriteSerializer,
-    DocumentSerializer,
-    FavouriteSerializer,
-    FontSerializer,
+    ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
+    DocumentSerializer, FavouriteSerializer, FontSerializer,
     ShortDocumentSerializer)
 from api.serializers.user_serializers import (CodeValidationSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
                                               ResetPasswordSerializer)
 from documents.models import Document, Favourite, Font, TemplateColor
+from users.models import User
 from .filters import DocumentFilter
 from .utils import create_pdf, parse_csv
 
@@ -218,7 +215,7 @@ class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        return Document.objects.filter(user=user)
+        return Document.objects.filter(Q(favourite__user=user) | Q(user=user))
 
     @action(detail=False, methods=['get'])
     def profile(self, request, *args, **kwargs):
