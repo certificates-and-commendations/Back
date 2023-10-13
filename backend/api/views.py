@@ -38,21 +38,17 @@ from .utils import create_pdf, parse_csv
 def regist_user(request):
     """Регистрация пользователей"""
     serializer = MyUserCreateSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save()
-        email = serializer.data.get('email')
-        user = User.objects.get(email=email)
-        user.is_active = False
-        # Отправка кода на почту
-        code = random.randint(1111, 9999)
-        request.session['confirm_code'] = code
-        request.session['confirm_email'] = email
-        gmail_send_message(code=code, email=email, activation=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    return Response(
-        {'Ошибка': 'Проверьте введенный email и/или пароль'},
-        status=status.HTTP_400_BAD_REQUEST
-    )
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    email = serializer.data.get('email')
+    user = User.objects.get(email=email)
+    user.is_active = False
+    # Отправка кода на почту
+    code = random.randint(1111, 9999)
+    request.session['confirm_code'] = code
+    request.session['confirm_email'] = email
+    gmail_send_message(code=code, email=email, activation=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @swagger_auto_schema(method='POST',
