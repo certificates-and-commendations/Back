@@ -44,6 +44,7 @@ class DocumentAdmin(admin.ModelAdmin):
         'category',
         'background',
         'is_horizontal',
+        'is_public'
     )
     list_filter = ('category', 'is_horizontal', )
     search_fields = ('title', 'user__email', )
