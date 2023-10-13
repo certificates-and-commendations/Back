@@ -32,9 +32,6 @@ class RequestResetPasswordSerializer(serializers.Serializer):
     """Сериализатор для отправки кода на почту для сброса пароля."""
     email = serializers.EmailField(required=True)
 
-    class Meta:
-        model = User
-
 
 class CodeValidationSerializer(serializers.Serializer):
     """Сериализатор для проверки кода."""
