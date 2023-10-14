@@ -19,7 +19,7 @@ user_router.register("users", UserViewSet, basename="users")
 
 def is_route_selected(url_pattern):
 
-    urls = []
+    urls = ['users/me/', ]
 
     for u in urls:
         match = url_pattern.resolve(u)
