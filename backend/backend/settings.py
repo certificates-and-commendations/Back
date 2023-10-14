@@ -182,3 +182,7 @@ CORS_ALLOW_ORIGINS = [
     'http://localhost:3000',
 ]
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://*.127.0.0.1', 'http://*.certificates.acceleratorpracticum.ru', 'http://*.185.93.111.238']
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# указываем директорию, в которую будут складываться файлы писем
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')

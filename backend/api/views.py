@@ -28,6 +28,7 @@ from api.permissions import IsCreatorOrReadOnly
 from .filters import DocumentFilter
 from .send_message.send_message import gmail_send_message
 from .utils import create_pdf, parse_csv
+# from django.core.mail import send_mail
 
 
 @swagger_auto_schema(method='POST', request_body=MyUserCreateSerializer)
@@ -44,6 +45,13 @@ def regist_user(request):
     code = random.randint(1111, 9999)
     request.session['confirm_code'] = code
     request.session['confirm_email'] = email
+    # send_mail(
+    #                 'Тема письма',
+    #                 f'Ваш код для активации аккаунта {code}',
+    #                 'from@example.com',
+    #                 [user.email],
+    #                 fail_silently=False,
+    #             )
     gmail_send_message(code=code, email=email, activation=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -222,6 +230,7 @@ class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
 
 
 class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
+    "Профиль пользователя. Просмотр созданных и избранных документов."
     serializer_class = ShortDocumentSerializer
     permission_classes = [IsAuthenticated]
 
