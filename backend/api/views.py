@@ -174,8 +174,7 @@ class DocumentsViewSet(viewsets.ModelViewSet):
         return DocumentSerializer
 
     def perform_create(self, serializer):
-        user = get_object_or_404(self.request.user)
-        serializer.save(user=user)
+        serializer.save(user=self.request.user)
 
     @action(methods=['GET',], detail=True,
             parser_classes=(FileUploadParser, MultiPartParser),
