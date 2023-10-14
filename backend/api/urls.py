@@ -8,7 +8,7 @@ from api.views import (ColorViewSet, DocumentsViewSet, FontViewSet,
 
 app_name = 'api'
 router = DefaultRouter()
-router.register("colors", ColorViewSet)
+router.register('colors', ColorViewSet)
 router.register('documents', DocumentsViewSet)
 router.register('font', FontViewSet)
 router.register('profile', UserProfileDocumentViewSet, basename='profile')
@@ -20,7 +20,6 @@ user_router.register("users", UserViewSet, basename="users")
 def is_route_selected(url_pattern):
 
     urls = [
-        'users/',
         'users/me/',
     ]
 
