@@ -35,7 +35,6 @@ selected_user_routes = list(filter(is_route_selected, user_router.urls))
 
 urlpatterns = [
     path('', include(router.urls)),
-    # path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
     path('auth/send_reset_code/', send_reset_code),
     path('auth/reset_password/', reset_password),
