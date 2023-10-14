@@ -10,11 +10,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-
 SCOPES = ['https://www.googleapis.com/auth/gmail.send']
 
 
-def gmail_send_message(code, email):
+def gmail_send_message(code, email, activation=True):
     creds = None
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -34,14 +33,19 @@ def gmail_send_message(code, email):
         service = build('gmail', 'v1', credentials=creds)
         message = EmailMessage()
 
-        message.set_content(
-            'Код активации для подтверждения вашего аккаунта: ' + str(code)
-        )
+        if activation:
+            message.set_content(
+                'Код для сброса пароля вашего аккаунта: ' + str(code)
+            )
+            message['Subject'] = 'Код для сброса пароля'
+        else:
+            message.set_content(
+                'Код активации для подтверждения вашего аккаунта: ' + str(code)
+            )
+            message['Subject'] = 'Код активации'
 
         message['To'] = email
         message['From'] = 'gduser2@workspacesamples.dev'
-        message['Subject'] = 'Код активации'
-
         # encoded message
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
 

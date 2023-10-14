@@ -1,15 +1,6 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-
 from users.models import User
-
-
-CATEGORY_CHOICES = (
-    ('diplomas', 'Дипломы'),
-    ('certificates', 'Сертификаты'),
-    ('appreciations', 'Благодарности'),
-    ('awards', 'Грамоты'),
-)
 
 FONT_DECORATIONS = (
     ('underline', 'подчеркнутый'),
@@ -18,9 +9,9 @@ FONT_DECORATIONS = (
 )
 
 TEXT_ALIGN = (
-    ('left', ''),
-    ('right', ''),
-    ('center', '')
+    ('left', 'по левому краю'),
+    ('right', 'по правому краю'),
+    ('center', 'по центру')
 )
 
 
@@ -55,10 +46,9 @@ class Document(models.Model):
         null=True,
         on_delete=models.SET_NULL,
     )
-    color = models.ForeignKey(
+    color = models.ManyToManyField(
         'TemplateColor',
-        on_delete=models.SET_NULL,
-        null=True
+        related_name='colors',
     )
     background = models.ImageField(
         'BackgroundImage',
@@ -66,6 +56,7 @@ class Document(models.Model):
         blank=True
     )
     is_horizontal = models.BooleanField(default=False)
+    is_public = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('title',)
@@ -84,8 +75,14 @@ class TextField(models.Model):
     text = models.CharField(max_length=255, verbose_name='Текст поля')
     coordinate_y = models.IntegerField(verbose_name='Координата Y')
     coordinate_x = models.IntegerField(verbose_name='Координата X')
-    font = models.CharField(
+
+    font = models.ForeignKey(
+        'Font',
+        related_name='text',
         max_length=50,
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
         verbose_name='Название шрифта',
         help_text='Введите название шрифта'
     )
@@ -101,8 +98,6 @@ class TextField(models.Model):
         max_length=7,
         verbose_name='Цвет шрифта'
     )
-    is_bold = models.BooleanField(default=False)
-    is_italic = models.BooleanField(default=False)
     text_decoration = models.CharField(
         max_length=20,
         choices=FONT_DECORATIONS,
@@ -119,19 +114,23 @@ class TextField(models.Model):
         verbose_name_plural = 'Поля'
 
     def __str__(self):
-        # return self.pk
-        return (f'поля текста для документа {self.document.title}')
+        return f'поля текста для документа {self.document.title}'
 
 
 class Category(models.Model):
     """
     Модель представляет категории.
     """
+    name_validator = RegexValidator(
+        regex=r'^[А-Яа-я]+$',
+        message='Название должно содержать буквы кириллицы',
+        code='invalid_name'
+    )
 
     name = models.CharField(
         max_length=55,
         db_index=True,
-        choices=CATEGORY_CHOICES,
+        validators=[name_validator],
         verbose_name='Категория',
         help_text='Введите категорию документа'
     )
@@ -174,8 +173,7 @@ class TemplateColor(models.Model):
         verbose_name_plural = 'Цвета фона'
 
     def __str__(self):
-        # return self.pk
-        return self.slug  # из-за ошибок админки пеменяла рк на слаг
+        return self.slug
 
 
 class Element(models.Model):
@@ -197,7 +195,7 @@ class Element(models.Model):
     # админка не принимает рк, сделала так
     def __str__(self):
         # return self.pk
-        return (f'элемент для документа {self.document.title}')
+        return f'элемент для документа {self.document.title}'
 
 
 class Favourite(models.Model):
@@ -205,18 +203,33 @@ class Favourite(models.Model):
     Модель для избранных шаблонов
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE,
-                             related_name='favorite',
+                             related_name='favourite',
                              verbose_name='Пользователь',)
     document = models.ForeignKey(Document, on_delete=models.CASCADE,
-                                 related_name='favorite',
+                                 related_name='favourite',
                                  verbose_name='Шаблон в избранном',)
 
     class Meta:
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
-        # добавила проверку на уникальность
+
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'document'], name='unique_favorite'
             )
         ]
+
+
+class Font(models.Model):
+    """Модель для шрифтов."""
+    font = models.CharField(max_length=100)
+    is_bold = models.BooleanField()
+    is_italic = models.BooleanField()
+    font_file = models.FileField(upload_to='fonts/')
+
+    class Meta:
+        verbose_name = 'Шрифт'
+        verbose_name_plural = 'Шрифты'
+
+    def __str__(self):
+        return self.font

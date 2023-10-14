@@ -1,7 +1,9 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
-from .models import (Category, Document, Element, Favourite, TemplateColor,
+from .models import (Category, Document, Element,
+                     Font, Favourite, TemplateColor,
                      TextField)
+from api.utils import create_thumbnail
 
 
 class FavouriteInline(admin.TabularInline):
@@ -12,6 +14,7 @@ class FavouriteInline(admin.TabularInline):
 
 class TextFieldInline(admin.TabularInline):
     model = TextField
+    fk_name = "document"
     min_num = 0
     extra = 0
 
@@ -40,13 +43,22 @@ class DocumentAdmin(admin.ModelAdmin):
         'user',
         'category',
         'background',
-        'color',
         'is_horizontal',
+        'is_public'
     )
     list_filter = ('category', 'is_horizontal', )
     search_fields = ('title', 'user__email', )
     ordering = ('time_create', )
-    readonly_fields = ['thumbnail']
+    readonly_fields = ('thumbnail',)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+        document = form.instance
+        create_thumbnail(document)
+        document.save()
 
 
 admin.site.register(Document, DocumentAdmin)
@@ -63,8 +75,6 @@ class TextFieldAdmin(admin.ModelAdmin):
         'font',
         'font_size',
         'font_color',
-        'is_bold',
-        'is_italic',
         'text_decoration',
         'align',
     )
@@ -81,7 +91,7 @@ class CategoryAdmin(admin.ModelAdmin):
         'name',
         'slug',
     )
-    list_filter = ('name', 'slug', )
+    list_filter = ('name', )
     search_fields = ('name', 'slug', )
 
 
@@ -116,3 +126,19 @@ class ElementAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Element, ElementAdmin)
+
+
+class FontAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id',
+        'font',
+        'is_bold',
+        'is_italic',
+        'font_file',
+    )
+    list_filter = ('font', )
+    search_fields = ('font', )
+
+
+admin.site.register(Font, FontAdmin)

@@ -19,6 +19,7 @@ services:
 
   backend:
     image: gratitudeya/certificates_backend:latest
+    pull_policy: always
     container_name: backend
     volumes:
      - static_value:/app/static/
