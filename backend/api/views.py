@@ -11,24 +11,21 @@ from rest_framework.parsers import FileUploadParser, MultiPartParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+
+from documents.models import Document, Favourite, Font, TemplateColor
 from users.models import User
 
-from api.send_message.send_message import gmail_send_message
 from api.serializers.certificate_serializers import (
-    ColorSerializer,
-    DocumentDetailSerializer,
-    DocumentDetailWriteSerializer,
-    DocumentSerializer,
-    FavouriteSerializer,
-    FontSerializer,
+    ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
+    DocumentSerializer, FavouriteSerializer, FontSerializer,
     ShortDocumentSerializer)
 from api.serializers.user_serializers import (CodeValidationSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
                                               ResetPasswordSerializer)
 from api.permissions import IsCreatorOrReadOnly
-from documents.models import Document, Favourite, Font, TemplateColor
 from .filters import DocumentFilter
+from .send_message.send_message import gmail_send_message
 from .utils import create_pdf, parse_csv
 
 
@@ -37,17 +34,28 @@ from .utils import create_pdf, parse_csv
 def regist_user(request):
     """Регистрация пользователей"""
     serializer = MyUserCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    email = serializer.data.get('email')
-    user = User.objects.get(email=email)
-    user.is_active = False
-    # Отправка кода на почту
-    code = random.randint(1111, 9999)
-    request.session['confirm_code'] = code
-    request.session['confirm_email'] = email
-    gmail_send_message(code=code, email=email, activation=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        email = request.data.get('email').lower()
+        password = request.data.get('password')
+
+        try:
+            user = User.objects.get(email=email)
+            if user.is_active:
+                return Response({'detail': 'Пользователь с таким email уже '
+                                'активирован.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            user = User.objects.create_user(email=email, password=password)
+            user.is_active = False
+
+        code = random.randint(1111, 9999)
+        request.session['confirm_code'] = code
+        request.session['confirm_email'] = email
+        gmail_send_message(code=code, email=email, activation=True)
+        return Response({'detail': 'Код подтверждения отправлен на вашу '
+                        'почту.'}, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @swagger_auto_schema(method='POST',
@@ -223,19 +231,10 @@ class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
 
 
 class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
+    "Профиль пользователя. Просмотр созданных и избранных документов."
     serializer_class = ShortDocumentSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return Document.objects.filter(user=user)
-
-    @action(detail=False, methods=['get'])
-    def profile(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return Document.objects.filter(Q(favourite__user=user) | Q(user=user))

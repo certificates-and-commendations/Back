@@ -35,14 +35,14 @@ def gmail_send_message(code, email, activation=True):
 
         if activation:
             message.set_content(
-                'Код для сброса пароля вашего аккаунта: ' + str(code)
-            )
-            message['Subject'] = 'Код для сброса пароля'
-        else:
-            message.set_content(
                 'Код активации для подтверждения вашего аккаунта: ' + str(code)
             )
             message['Subject'] = 'Код активации'
+        else:
+            message.set_content(
+                'Код для сброса пароля вашего аккаунта: ' + str(code)
+            )
+            message['Subject'] = 'Код для сброса пароля'
 
         message['To'] = email
         message['From'] = 'gduser2@workspacesamples.dev'
