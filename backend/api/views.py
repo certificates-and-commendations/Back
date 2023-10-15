@@ -200,9 +200,15 @@ class DocumentsViewSet(viewsets.ModelViewSet):
     @action(methods=['POST',], detail=False,
             parser_classes=(FileUploadParser, MultiPartParser))
     def upload(self, request):
-        file_obj = request.data.get('file', None)
-        names = parse_csv(file_obj, True)
-        return Response(data=names, status=status.HTTP_201_CREATED)
+        try: 
+            file_obj = request.data.get('file', None)
+            names = parse_csv(file_obj, True)
+            return Response(data=names, status=status.HTTP_201_CREATED)
+        except Exception:
+            data = []
+            for f in request.data.get('file', None):
+                data.append(f)
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['DELETE', 'POST'], detail=True,
             permission_classes=[IsAuthenticated])
