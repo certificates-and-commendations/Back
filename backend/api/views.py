@@ -52,9 +52,11 @@ def regist_user(request):
     except User.DoesNotExist:
         serializer = MyUserCreateSerializer(data=request.data)
         if serializer.is_valid():
-            user = User.objects.create_user(email=email, password=password)
+            user = serializer.save()
             user.is_active = False
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
 
     code = random.randint(1111, 9999)
     request.session['confirm_code'] = code
@@ -62,7 +64,6 @@ def regist_user(request):
     gmail_send_message(code=code, email=email, activation=True)
     return Response({'detail': 'Код подтверждения отправлен на вашу почту.'},
                     status=status.HTTP_201_CREATED)
-
 
 @swagger_auto_schema(method='POST',
                      request_body=RequestResetPasswordSerializer)
