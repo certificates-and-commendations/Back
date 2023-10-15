@@ -123,7 +123,7 @@ else:
             'USER': os.getenv('POSTGRES_USER', 'django'),
             'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'django_password'),
             'HOST': os.getenv('DB_HOST', '127.0.0.1'),
-            'PORT': os.getenv('DB_PORT', 5432)
+            'PORT': os.getenv('DB_PORT')
         }
     }
 
