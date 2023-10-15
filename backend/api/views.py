@@ -28,7 +28,6 @@ from api.permissions import IsCreatorOrReadOnly
 from .filters import DocumentFilter
 from .send_message.send_message import gmail_send_message
 from .utils import create_pdf, parse_csv
-# from django.core.mail import send_mail
 
 
 @swagger_auto_schema(method='POST', request_body=MyUserCreateSerializer)
@@ -36,25 +35,28 @@ from .utils import create_pdf, parse_csv
 def regist_user(request):
     """Регистрация пользователей"""
     serializer = MyUserCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    email = serializer.data.get('email')
-    user = User.objects.get(email=email)
-    user.is_active = False
-    # Отправка кода на почту
-    code = random.randint(1111, 9999)
-    request.session['confirm_code'] = code
-    request.session['confirm_email'] = email
-    # send_mail(
-    #                 'Тема письма',
-    #                 f'Ваш код для активации аккаунта {code}',
-    #                 'from@example.com',
-    #                 [user.email],
-    #                 fail_silently=False,
-    #             )
-    gmail_send_message(code=code, email=email, activation=True)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if serializer.is_valid():
+        email = request.data.get('email').lower()
+        password = request.data.get('password')
 
+        try:
+            user = User.objects.get(email=email)
+            if user.is_active:
+                return Response({'detail': 'Пользователь с таким email уже '
+                                'активирован.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            user = User.objects.create_user(email=email, password=password)
+            user.is_active = False
+
+        code = random.randint(1111, 9999)
+        request.session['confirm_code'] = code
+        request.session['confirm_email'] = email
+        gmail_send_message(code=code, email=email, activation=True)
+        return Response({'detail': 'Код подтверждения отправлен на вашу '
+                        'почту.'}, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @swagger_auto_schema(method='POST',
                      request_body=RequestResetPasswordSerializer)
