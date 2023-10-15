@@ -231,7 +231,7 @@ class ColorViewSet(mixins.ListModelMixin, GenericViewSet):
 
 
 class UserProfileDocumentViewSet(viewsets.ReadOnlyModelViewSet):
-    "Профиль пользователя. Просмотр созданных и избранных документов."
+    """Профиль пользователя. Просмотр созданных и избранных документов."""
     serializer_class = ShortDocumentSerializer
     permission_classes = [IsAuthenticated]
 
