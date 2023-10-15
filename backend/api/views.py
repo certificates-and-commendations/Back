@@ -58,6 +58,7 @@ def regist_user(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @swagger_auto_schema(method='POST',
                      request_body=RequestResetPasswordSerializer)
 @api_view(['POST'])
