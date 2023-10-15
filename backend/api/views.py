@@ -65,6 +65,7 @@ def regist_user(request):
     return Response({'detail': 'Код подтверждения отправлен на вашу почту.'},
                     status=status.HTTP_201_CREATED)
 
+
 @swagger_auto_schema(method='POST',
                      request_body=RequestResetPasswordSerializer)
 @api_view(['POST'])
