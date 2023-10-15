@@ -122,8 +122,8 @@ else:
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.getenv('DB_NAME', 'django'),
             'USER': os.getenv('POSTGRES_USER', 'django'),
-            'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-            'HOST': os.getenv('DB_HOST', ''),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'django_password'),
+            'HOST': os.getenv('DB_HOST',  '127.0.0.1'),
             'PORT': os.getenv('DB_PORT', 5432)
         }
     }
@@ -181,3 +181,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ORIGINS = [
     'http://localhost:3000',
 ]
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://*.127.0.0.1',
+                        'https://*.185.93.111.238',
+                        'https://*.certificates.acceleratorpracticum.ru']
