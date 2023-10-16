@@ -1,4 +1,5 @@
 from api.utils import Base64ImageField, create_thumbnail, dominant_color
+from django.core.validators import FileExtensionValidator
 from django.db import transaction
 from documents.models import (Document, Element, Favourite,
                               Font, TemplateColor, TextField)
@@ -173,3 +174,8 @@ class ColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = TemplateColor
         fields = ('__all__')
+
+
+class FileUploadSerializer(serializers.Serializer):
+    csv_file = serializers.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])])
