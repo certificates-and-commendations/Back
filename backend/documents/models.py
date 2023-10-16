@@ -226,7 +226,9 @@ class Font(models.Model):
     font = models.CharField(max_length=100)
     is_bold = models.BooleanField()
     is_italic = models.BooleanField()
-    font_file = models.FileField(upload_to='fonts/', validators=[FileExtensionValidator(allowed_extensions=['ttf'])])
+    font_file = models.FileField(
+        upload_to='fonts/', 
+        validators=[FileExtensionValidator(allowed_extensions=['ttf'])])
 
     class Meta:
         verbose_name = 'Шрифт'
