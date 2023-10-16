@@ -173,3 +173,7 @@ class ColorSerializer(serializers.ModelSerializer):
     class Meta:
         model = TemplateColor
         fields = ('__all__')
+
+
+class FileUploadSerializer(serializers.Serializer):
+    csv_file = serializers.FileField()

@@ -8,7 +8,7 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action, api_view
 from rest_framework.parsers import FileUploadParser, MultiPartParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -18,7 +18,7 @@ from users.models import User
 from api.serializers.certificate_serializers import (
     ColorSerializer, DocumentDetailSerializer, DocumentDetailWriteSerializer,
     DocumentSerializer, FavouriteSerializer, FontSerializer,
-    ShortDocumentSerializer)
+    ShortDocumentSerializer, FileUploadSerializer)
 from api.serializers.user_serializers import (CodeValidationSerializer,
                                               MyUserCreateSerializer,
                                               RequestResetPasswordSerializer,
@@ -178,6 +178,8 @@ class DocumentsViewSet(viewsets.ModelViewSet):
             return DocumentDetailWriteSerializer
         if self.action == 'favourite':
             return FavouriteSerializer
+        if self.action == 'upload':
+            return FileUploadSerializer
         return DocumentSerializer
 
     def perform_create(self, serializer):
@@ -198,17 +200,13 @@ class DocumentsViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_404_NOT_FOUND)
 
     @action(methods=['POST',], detail=False,
-            parser_classes=(FileUploadParser, MultiPartParser))
+            permission_classes=[AllowAny])
     def upload(self, request):
-        try: 
-            file_obj = request.data.get('file', None)
-            names = parse_csv(file_obj, True)
-            return Response(data=names, status=status.HTTP_201_CREATED)
-        except Exception:
-            data = []
-            for f in request.data.get('file', None):
-                data.append(f)
-            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        file_obj = serializer.validated_data.get('csv_file')
+        names = parse_csv(file_obj, True)
+        return Response(data=names, status=status.HTTP_201_CREATED)
 
     @action(methods=['DELETE', 'POST'], detail=True,
             permission_classes=[IsAuthenticated])
