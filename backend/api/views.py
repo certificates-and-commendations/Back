@@ -33,29 +33,36 @@ from .utils import create_pdf, parse_csv
 @api_view(['POST'])
 def regist_user(request):
     """Регистрация пользователей"""
-    serializer = MyUserCreateSerializer(data=request.data)
-    if serializer.is_valid():
-        email = request.data.get('email').lower()
-        password = request.data.get('password')
+    email = request.data.get('email')
+    password = request.data.get('password')
 
-        try:
-            user = User.objects.get(email=email)
-            if user.is_active:
-                return Response({'detail': 'Пользователь с таким email уже '
-                                'активирован.'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        except User.DoesNotExist:
-            user = User.objects.create_user(email=email, password=password)
+    if not email or not password:
+        return Response({'detail': 'Email и пароль обязательны для '
+                        'регистрации.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    email = email.lower()
+
+    try:
+        user = User.objects.get(email=email)
+        if user.is_active:
+            return Response({'detail': 'Пользователь с таким email уже '
+                            'активирован.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+    except User.DoesNotExist:
+        serializer = MyUserCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
             user.is_active = False
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        code = random.randint(1111, 9999)
-        request.session['confirm_code'] = code
-        request.session['confirm_email'] = email
-        gmail_send_message(code=code, email=email, activation=True)
-        return Response({'detail': 'Код подтверждения отправлен на вашу '
-                        'почту.'}, status=status.HTTP_201_CREATED)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    code = random.randint(1111, 9999)
+    request.session['confirm_code'] = code
+    request.session['confirm_email'] = email
+    gmail_send_message(code=code, email=email, activation=True)
+    return Response({'detail': 'Код подтверждения отправлен на вашу почту.'},
+                    status=status.HTTP_201_CREATED)
 
 
 @swagger_auto_schema(method='POST',
