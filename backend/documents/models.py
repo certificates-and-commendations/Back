@@ -227,7 +227,7 @@ class Font(models.Model):
     is_bold = models.BooleanField()
     is_italic = models.BooleanField()
     font_file = models.FileField(
-        upload_to='fonts/', 
+        upload_to='fonts/',
         validators=[FileExtensionValidator(allowed_extensions=['ttf'])])
 
     class Meta:
