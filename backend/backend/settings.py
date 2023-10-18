@@ -184,3 +184,5 @@ CORS_ALLOW_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://*.127.0.0.1',
                         'https://*.185.93.111.238',
                         'https://*.certificates.acceleratorpracticum.ru']
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
